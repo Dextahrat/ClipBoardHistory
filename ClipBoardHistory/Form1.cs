@@ -26,7 +26,7 @@ namespace ClipBoardHistory
 
 
             dataGridView1.DataSource = _clipBoardDatas;
-
+            this.Hide();
 
         }
 
@@ -221,6 +221,12 @@ namespace ClipBoardHistory
         private void showToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Show();
+        }
+
+        private void notifyIcon1_DoubleClick(object sender, EventArgs e)
+        {
+            this.Show();
+            this.Focus();
         }
     }
 }
