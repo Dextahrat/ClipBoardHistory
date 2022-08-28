@@ -69,4 +69,35 @@
   <metadata name="Note.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <metadata name="notifyIcon1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="contextMenuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>130, 17</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="notifyIcon1.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAMMOAADDDgAAAAAAAAAA
+        AAD/////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////5Db//8AOmb/AAAA/2Y6AP//25D//////7b/
+        //8AAGb/AAAA/wAAAP8AAAD/tmY6/////////////////9v///8AOpD/25Bm//////+Qttv/ZgA6////
+        tv+2////ZgBm////tv//////ttv//wAAZv//tmb///////////+Q2///ZgA6////tv//////////////
+        ////////tv///2YAZv///7b///////////8AZrb/25A6////////////kNv//2YAOv///7b/////////
+        /////////////7b///9mAGb///+2//////+22///OgBm///bkP///////////5Db//9mADr///+2////
+        //////////////////+2////AABm/wAAAP8AAAD/OgAA/9uQZv////////////////+Q2///ZgA6////
+        tv//////////////////////tv///2YAZv///7b//////7b///86Omb//9uQ////////////2////wA6
+        kP/bkGb//////5C22/9mADr///+2/7b///9mAGb///+2//////+2////ADpm//+2Zv//////////////
+        //+Q2///ADpm/wAAAP9mOgD//9uQ//////+2////AABm/wAAAP8AAAD/AAAA/7ZmOv///9v/////////
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAA==
+</value>
+  </data>
 </root>

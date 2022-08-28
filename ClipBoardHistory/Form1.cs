@@ -17,6 +17,7 @@ namespace ClipBoardHistory
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.ShowInTaskbar = false;
             _clipBoardUtil.RegisterClipboardViewer(this.Handle);
             dataGridView1.AutoGenerateColumns = false;
             using var dbcontext = new SQLiteDbContext();
@@ -202,6 +203,24 @@ namespace ClipBoardHistory
                 }
                 
             }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+            this.Dispose();
+            Application.Exit();
+        }
+
+        private void showToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Show();
         }
     }
 }
