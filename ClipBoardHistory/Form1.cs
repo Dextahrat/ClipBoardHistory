@@ -182,7 +182,25 @@ namespace ClipBoardHistory
             }
             else if (e.ColumnIndex == 3)
             {//Note formunu aç.
+                var frm = new frmNoteDetail();
+                frm.txt = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == null ? "" : dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
+                frm.id = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
+                if(frm.ShowDialog() == DialogResult.OK)
+                {
+                    using var dbcontext = new SQLiteDbContext();
+                    dbcontext.Database.EnsureCreated();
+                    var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == frm.id);
+                    clipBoardData.Note = frm.txt;
+                    dbcontext.SaveChanges();
+                    _clipBoardDatas.FirstOrDefault(x => x.Id == frm.id).Note=frm.txt;
 
+                    dataGridView1.DataSource = null;
+                    dataGridView1.Refresh();
+
+                    dataGridView1.DataSource = _clipBoardDatas;
+                    dataGridView1.Refresh();
+                }
+                
             }
         }
     }
