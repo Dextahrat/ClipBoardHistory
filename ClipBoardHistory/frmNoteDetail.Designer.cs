@@ -63,7 +63,7 @@
             this.Controls.Add(this.richTextBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "frmNoteDetail";
-            this.Text = "frmNoteDetail";
+            this.Text = "Note";
             this.Load += new System.EventHandler(this.frmNoteDetail_Load);
             this.ResumeLayout(false);
 
