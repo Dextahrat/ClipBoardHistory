@@ -25,7 +25,7 @@ namespace ClipBoardHistory
 
 
             dataGridView1.DataSource = _clipBoardDatas;
-            this.Hide();
+            //this.Hide();
 
         }
 
@@ -177,7 +177,7 @@ namespace ClipBoardHistory
             if (e.ColumnIndex == 2)
             {//Text formunu aç.
                 var frm = new frmTextDetail();
-                frm.txt = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
+                frm.txt = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
                 frm.ShowDialog();
             }
             else if (e.ColumnIndex == 3)

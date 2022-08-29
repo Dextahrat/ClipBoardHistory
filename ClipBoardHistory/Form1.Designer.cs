@@ -29,12 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Id = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CreateDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CBText = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Brief = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Note = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CBText = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,18 +55,23 @@
             this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.BackgroundColor = System.Drawing.Color.White;
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Id,
             this.CreateDate,
-            this.CBText,
-            this.Note});
+            this.Brief,
+            this.Note,
+            this.CBText});
             this.dataGridView1.Location = new System.Drawing.Point(12, 36);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView1.RowTemplate.Height = 25;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGridView1.Size = new System.Drawing.Size(776, 402);
@@ -89,13 +96,13 @@
             this.CreateDate.ReadOnly = true;
             this.CreateDate.Width = 115;
             // 
-            // CBText
+            // Brief
             // 
-            this.CBText.DataPropertyName = "CBText";
-            this.CBText.HeaderText = "Text";
-            this.CBText.Name = "CBText";
-            this.CBText.ReadOnly = true;
-            this.CBText.Width = 500;
+            this.Brief.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Brief.DataPropertyName = "Brief";
+            this.Brief.HeaderText = "Text";
+            this.Brief.Name = "Brief";
+            this.Brief.ReadOnly = true;
             // 
             // Note
             // 
@@ -103,6 +110,15 @@
             this.Note.HeaderText = "Note";
             this.Note.Name = "Note";
             this.Note.ReadOnly = true;
+            // 
+            // CBText
+            // 
+            this.CBText.DataPropertyName = "CBText";
+            this.CBText.HeaderText = "FullText";
+            this.CBText.Name = "CBText";
+            this.CBText.ReadOnly = true;
+            this.CBText.Visible = false;
+            this.CBText.Width = 500;
             // 
             // notifyIcon1
             // 
@@ -183,15 +199,16 @@
         #endregion
 
         private DataGridView dataGridView1;
-        private DataGridViewTextBoxColumn Id;
-        private DataGridViewTextBoxColumn CreateDate;
-        private DataGridViewTextBoxColumn CBText;
-        private DataGridViewTextBoxColumn Note;
         private NotifyIcon notifyIcon1;
         private ContextMenuStrip contextMenuStrip1;
         private ToolStripMenuItem showToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ComboBox cmbDateFilter;
         private Label label1;
+        private DataGridViewTextBoxColumn Id;
+        private DataGridViewTextBoxColumn CreateDate;
+        private DataGridViewTextBoxColumn Brief;
+        private DataGridViewTextBoxColumn Note;
+        private DataGridViewTextBoxColumn CBText;
     }
 }
