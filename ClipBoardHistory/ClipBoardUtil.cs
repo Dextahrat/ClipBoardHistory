@@ -60,6 +60,46 @@ namespace ClipBoardHistory
 
         }
 
+        public List<ClipBoardData> GetClipBoardDatas(int dateFilterIndex)
+        {
+            /* dateFilterIndex
+             0 - Last 24 Hours
+             1 - Last Week
+             2 - Last Month
+             3 - Last Year
+             4 - ALL
+            */
+            DateTime dateTimeFilter = DateTime.MinValue;
+            if (dateFilterIndex == 0)
+            {
+                dateTimeFilter = DateTime.Now.AddHours(-24);
+            } 
+            else if (dateFilterIndex == 1)
+            {
+                dateTimeFilter = DateTime.Now.AddDays(-7);
+            }
+            else if (dateFilterIndex == 2)
+            {
+                dateTimeFilter = DateTime.Now.AddMonths(-1);
+            }
+            else if (dateFilterIndex == 3)
+            {
+                dateTimeFilter = DateTime.Now.AddYears(-1);
+            }
+            else 
+            {
+                dateTimeFilter = DateTime.MinValue;
+            }
+
+
+            using var dbcontext = new SQLiteDbContext();
+            dbcontext.Database.EnsureCreated();
+            var result = dbcontext.ClipBoardDatas
+                .ToList().Where(a => DateTime.ParseExact(a.CreateDate, "yyyy-MM-dd HH:mm:ss", null) >= dateTimeFilter).OrderByDescending(x => x.CreateDate).ToList();
+
+            return result;
+        }
+
 
         public enum Msgs
         {

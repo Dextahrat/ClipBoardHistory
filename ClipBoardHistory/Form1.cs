@@ -17,12 +17,11 @@ namespace ClipBoardHistory
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            cmbDateFilter.SelectedIndex = 1;
             this.ShowInTaskbar = false;
             _clipBoardUtil.RegisterClipboardViewer(this.Handle);
             dataGridView1.AutoGenerateColumns = false;
-            using var dbcontext = new SQLiteDbContext();
-            dbcontext.Database.EnsureCreated();
-            _clipBoardDatas = dbcontext.ClipBoardDatas.ToList().OrderByDescending(x => x.CreateDate).ToList();
+            _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
 
 
             dataGridView1.DataSource = _clipBoardDatas;
@@ -227,6 +226,17 @@ namespace ClipBoardHistory
         {
             this.Show();
             this.Focus();
+        }
+
+        private void cmbDateFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
+
+            dataGridView1.DataSource = null;
+            dataGridView1.Refresh();
+
+            dataGridView1.DataSource = _clipBoardDatas;
+            dataGridView1.Refresh();
         }
     }
 }
