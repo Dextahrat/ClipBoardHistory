@@ -56,7 +56,7 @@ namespace ClipBoardHistory
                     case 3:
                         return Color.Blue;
                     case 4:
-                        return Color.Magenta;
+                        return Color.SaddleBrown;
                     case 5:
                         return Color.Yellow;
                     case 6:

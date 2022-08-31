@@ -25,7 +25,7 @@ namespace ClipBoardHistory
 
 
             dataGridView1.DataSource = _clipBoardDatas;
-            //this.Hide();
+            this.Hide();
 
         }
 
@@ -41,12 +41,6 @@ namespace ClipBoardHistory
         {
             switch ((ClipBoardUtil.Msgs)m.Msg)
             {
-                //
-                // The WM_DRAWCLIPBOARD message is sent to the first window 
-                // in the clipboard viewer chain when the content of the 
-                // clipboard changes. This enables a clipboard viewer 
-                // window to display the new content of the clipboard. 
-                //
                 case ClipBoardUtil.Msgs.WM_DRAWCLIPBOARD:
 
                     Debug.WriteLine("WindowProc DRAWCLIPBOARD: " + m.Msg, "WndProc");
@@ -71,41 +65,16 @@ namespace ClipBoardHistory
 
                         _firstRun = false;
                     }
-                    //
-                    // Each window that receives the WM_DRAWCLIPBOARD message 
-                    // must call the SendMessage function to pass the message 
-                    // on to the next window in the clipboard viewer chain.
-                    //
+
                     ClipBoardUtil.SendMessage(ClipBoardUtil._ClipboardViewerNext, m.Msg, m.WParam, m.LParam);
                     break;
 
-
-                //
-                // The WM_CHANGECBCHAIN message is sent to the first window 
-                // in the clipboard viewer chain when a window is being 
-                // removed from the chain. 
-                //
                 case ClipBoardUtil.Msgs.WM_CHANGECBCHAIN:
                     Debug.WriteLine("WM_CHANGECBCHAIN: lParam: " + m.LParam, "WndProc");
 
-                    // When a clipboard viewer window receives the WM_CHANGECBCHAIN message, 
-                    // it should call the SendMessage function to pass the message to the 
-                    // next window in the chain, unless the next window is the window 
-                    // being removed. In this case, the clipboard viewer should save 
-                    // the handle specified by the lParam parameter as the next window in the chain. 
 
-                    //
-                    // wParam is the Handle to the window being removed from 
-                    // the clipboard viewer chain 
-                    // lParam is the Handle to the next window in the chain 
-                    // following the window being removed. 
                     if (m.WParam == ClipBoardUtil._ClipboardViewerNext)
                     {
-                        //
-                        // If wParam is the next clipboard viewer then it
-                        // is being removed so update pointer to the next
-                        // window in the clipboard chain
-                        //
                         ClipBoardUtil._ClipboardViewerNext = m.LParam;
                     }
                     else
@@ -115,10 +84,6 @@ namespace ClipBoardHistory
                     break;
 
                 default:
-                    //
-                    // Let the form process the messages that we are
-                    // not interested in
-                    //
                     base.WndProc(ref m);
                     break;
 
