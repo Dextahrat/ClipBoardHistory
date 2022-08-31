@@ -5,7 +5,14 @@ namespace ClipBoardHistory
     public class ClipBoardData
     {
         public int Id { get; set; }
-        public string? CreateDate { get; set; }
+        public string? CreateDateWithDay 
+        { 
+            get 
+            {
+                var date = DateTime.ParseExact(CreateDate ?? DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss") , "yyyy-MM-dd HH:mm:ss",null);
+                return date.ToString("yyyy-MM-dd HH:mm:ss")+Environment.NewLine+Environment.NewLine+date.ToString("dddd"); 
+            } 
+        }
         public string? Brief
         {
             get
@@ -34,16 +41,34 @@ namespace ClipBoardHistory
         public string? Note { get; set; }
 
         public string? CBText { get; set; }
-
-        private string? ClearDoubleNewLines(string s)
+        public string? CreateDate { get; set; }
+        public Color DayColor 
         {
-            if (s.Length - s.Replace(Environment.NewLine + Environment.NewLine,"").Length>1)
+            get 
             {
-                ClearDoubleNewLines(s.Replace(Environment.NewLine + Environment.NewLine, ""));
-            }
-            return s;
-        }
+                var date = DateTime.ParseExact(CreateDate ?? DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", null);
+                switch ((int)(date.DayOfWeek))
+                {
+                    case 1:
+                        return Color.Green;
+                    case 2:
+                        return Color.Red;
+                    case 3:
+                        return Color.Blue;
+                    case 4:
+                        return Color.Magenta;
+                    case 5:
+                        return Color.Yellow;
+                    case 6:
+                        return Color.Orange;
+                    case 0:
+                        return Color.Orchid;
+                    default:
+                        return Color.White;
+                }
 
+            }
+        }
 
     }
 }

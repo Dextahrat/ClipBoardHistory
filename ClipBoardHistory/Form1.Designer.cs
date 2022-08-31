@@ -29,14 +29,17 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CreateDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CreateDateWithDay = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Brief = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Note = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CBText = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CreateDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DayColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,40 +64,44 @@
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Id,
-            this.CreateDate,
+            this.CreateDateWithDay,
             this.Brief,
             this.Note,
-            this.CBText});
+            this.CBText,
+            this.CreateDate,
+            this.DayColor});
             this.dataGridView1.Location = new System.Drawing.Point(12, 36);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView1.RowTemplate.Height = 25;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGridView1.Size = new System.Drawing.Size(776, 402);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseDoubleClick);
+            this.dataGridView1.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView1_RowPostPaint);
             this.dataGridView1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dataGridView1_MouseDown);
             // 
             // Id
             // 
             this.Id.DataPropertyName = "Id";
-            this.Id.HeaderText = "Id";
+            this.Id.HeaderText = "";
             this.Id.Name = "Id";
             this.Id.ReadOnly = true;
-            this.Id.Visible = false;
-            this.Id.Width = 115;
+            this.Id.Width = 5;
             // 
-            // CreateDate
+            // CreateDateWithDay
             // 
-            this.CreateDate.DataPropertyName = "CreateDate";
-            this.CreateDate.HeaderText = "Tarih";
-            this.CreateDate.Name = "CreateDate";
-            this.CreateDate.ReadOnly = true;
-            this.CreateDate.Width = 115;
+            this.CreateDateWithDay.DataPropertyName = "CreateDateWithDay";
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft YaHei", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.CreateDateWithDay.DefaultCellStyle = dataGridViewCellStyle1;
+            this.CreateDateWithDay.HeaderText = "Tarih";
+            this.CreateDateWithDay.Name = "CreateDateWithDay";
+            this.CreateDateWithDay.ReadOnly = true;
+            this.CreateDateWithDay.Width = 115;
             // 
             // Brief
             // 
@@ -119,6 +126,23 @@
             this.CBText.ReadOnly = true;
             this.CBText.Visible = false;
             this.CBText.Width = 500;
+            // 
+            // CreateDate
+            // 
+            this.CreateDate.DataPropertyName = "CreateDate";
+            this.CreateDate.HeaderText = "TarihNormal";
+            this.CreateDate.Name = "CreateDate";
+            this.CreateDate.ReadOnly = true;
+            this.CreateDate.Visible = false;
+            this.CreateDate.Width = 115;
+            // 
+            // DayColor
+            // 
+            this.DayColor.DataPropertyName = "DayColor";
+            this.DayColor.HeaderText = "DayColor";
+            this.DayColor.Name = "DayColor";
+            this.DayColor.ReadOnly = true;
+            this.DayColor.Visible = false;
             // 
             // notifyIcon1
             // 
@@ -206,9 +230,11 @@
         private ComboBox cmbDateFilter;
         private Label label1;
         private DataGridViewTextBoxColumn Id;
-        private DataGridViewTextBoxColumn CreateDate;
+        private DataGridViewTextBoxColumn CreateDateWithDay;
         private DataGridViewTextBoxColumn Brief;
         private DataGridViewTextBoxColumn Note;
         private DataGridViewTextBoxColumn CBText;
+        private DataGridViewTextBoxColumn CreateDate;
+        private DataGridViewTextBoxColumn DayColor;
     }
 }

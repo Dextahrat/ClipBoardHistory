@@ -238,5 +238,11 @@ namespace ClipBoardHistory
             dataGridView1.DataSource = _clipBoardDatas;
             dataGridView1.Refresh();
         }
+
+        private void dataGridView1_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            dataGridView1.Rows[e.RowIndex].Cells[0].Style.BackColor = (Color)(dataGridView1.Rows[e.RowIndex].Cells[6].Value);
+        }
     }
 }
