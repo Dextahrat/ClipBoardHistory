@@ -25,8 +25,8 @@ namespace ClipBoardHistory
                     if (newLineCount > 4)
                     {
                         var tempArray = temp.Split(Environment.NewLine);
-                        temp =  tempArray[1] + Environment.NewLine + tempArray[2] + Environment.NewLine 
-                            + tempArray[3] + Environment.NewLine + tempArray[4] + Environment.NewLine
+                        temp =  (tempArray[0]??"") + Environment.NewLine + (tempArray[1]??"") + Environment.NewLine 
+                            + (tempArray[2]??"") + Environment.NewLine + (tempArray[3]??"") + Environment.NewLine
                             + Environment.NewLine + " -- For More Double Click -- ";
                     }
 
