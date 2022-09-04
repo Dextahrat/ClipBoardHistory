@@ -209,5 +209,25 @@ namespace ClipBoardHistory
             if (e.RowIndex < 0) return;
             dataGridView1.Rows[e.RowIndex].Cells[0].Style.BackColor = (Color)(dataGridView1.Rows[e.RowIndex].Cells[6].Value);
         }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
+
+            dataGridView1.DataSource = null;
+            dataGridView1.Refresh();
+            var a = _clipBoardDatas.Where(x => (x.CBText??"").Contains(txtSearch.Text) || (x.Note??"").Contains(txtSearch.Text) || string.IsNullOrEmpty(txtSearch.Text));
+            dataGridView1.DataSource = a.ToList();
+
+            dataGridView1.Refresh();
+        }
+
+        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnSearch_Click(this, new EventArgs());
+            }
+        }
     }
 }

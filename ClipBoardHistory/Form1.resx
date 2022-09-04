@@ -109,6 +109,14 @@
         AAAAAAAAAAAAAA==
 </value>
   </data>
+  <data name="btnSearch.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABcAAAAXCAYAAADgKtSgAAAABGdBTUEAALGPC/xhBQAAAHBJREFUSEtj
+        GAWDEvzHgikGqUCMzWAYpgjgM4QiC4jRTLYFIE3PIUycgCLDiQE0M9wEiMk2nJBGYtRgBYQ0zgdikPxj
+        MI8MALMA3RJc4iQDZIPQMVUBM5QGAZpYAAMww7PAPBoAurie5haMAmIBAwMAPDA9Ni7pb9IAAAAASUVO
+        RK5CYII=
+</value>
+  </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAMMOAADDDgAAAAAAAAAA
