@@ -184,13 +184,15 @@ namespace ClipBoardHistory
 
         private void showToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.Show();
+            notifyIcon1_DoubleClick(sender, e);
         }
 
         private void notifyIcon1_DoubleClick(object sender, EventArgs e)
         {
+            this.TopMost = true;
             this.Show();
             this.Focus();
+            this.TopMost = false;
         }
 
         private void cmbDateFilter_SelectedIndexChanged(object sender, EventArgs e)
