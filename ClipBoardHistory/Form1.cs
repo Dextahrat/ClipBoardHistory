@@ -217,7 +217,7 @@ namespace ClipBoardHistory
 
             dataGridView1.DataSource = null;
             dataGridView1.Refresh();
-            var a = _clipBoardDatas.Where(x => (x.CBText??"").Contains(txtSearch.Text) || (x.Note??"").Contains(txtSearch.Text) || string.IsNullOrEmpty(txtSearch.Text));
+            var a = _clipBoardDatas.Where(x => (x.CBText ?? "").ToLower().Contains(txtSearch.Text.ToLower()) || (x.Note ?? "").ToLower().Contains(txtSearch.Text.ToLower()) || string.IsNullOrEmpty(txtSearch.Text));
             dataGridView1.DataSource = a.ToList();
 
             dataGridView1.Refresh();
