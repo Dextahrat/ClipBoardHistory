@@ -48,8 +48,7 @@ namespace ClipBoardHistory
                     string txt = _clipBoardUtil.GetClipboardData();
                     if (!string.IsNullOrEmpty(txt))
                     {
-
-                        if (!_firstRun)
+                        if (!_firstRun && Form.ActiveForm == null)
                         {
                             using var dbcontext = new SQLiteDbContext();
                             dbcontext.Database.EnsureCreated();
