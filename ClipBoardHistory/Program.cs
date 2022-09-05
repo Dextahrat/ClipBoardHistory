@@ -11,7 +11,7 @@ namespace ClipBoardHistory
         static void Main()
         {
 
-            const string appName = "ClipBoardHistory";
+            const string appName = "ClipBoardHistory";//test
             bool createdNew;
 
             var mutex = new Mutex(true, appName, out createdNew);
