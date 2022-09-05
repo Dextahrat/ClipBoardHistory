@@ -12,23 +12,31 @@ namespace ClipBoardHistory
         {
 
             const string appName = "ClipBoardHistory";//test
-            bool createdNew;
-
-            var mutex = new Mutex(true, appName, out createdNew);
-
-            if (!createdNew)
+            bool createdNew = true;
+            using (Mutex mutex = new Mutex(true, appName, out createdNew))
             {
-                MessageBox.Show("Application allready running!");
-                return;
-            }
-
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
-
+                if (createdNew)
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
+                    AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+                    ApplicationConfiguration.Initialize();
+                    Application.Run(new MainForm()); 
+                }
+                else
+                {
+                    mutex.
+                    ProcessUtils.SetFocusToPreviousInstance("ClipBoard History");
+                }
+            } 
+        }
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+        } 
+        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
         }
 
-        
     }
 }
