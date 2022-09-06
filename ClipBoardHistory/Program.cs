@@ -26,7 +26,6 @@ namespace ClipBoardHistory
                 }
                 else
                 {
-                    mutex.
                     ProcessUtils.SetFocusToPreviousInstance("ClipBoard History");
                 }
             } 
