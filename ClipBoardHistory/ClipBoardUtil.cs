@@ -52,7 +52,7 @@ namespace ClipBoardHistory
             if (iData.GetDataPresent(DataFormats.Text))
             {
                 var txt = (string)iData.GetData(DataFormats.Text);
-                if (txt != "ClipBoardHistory89daskj091ncaöm)(43534fdfafda")
+                if (txt != AppConstants.InstanceKey)
                     _lastText = txt;
                 return txt;
             }

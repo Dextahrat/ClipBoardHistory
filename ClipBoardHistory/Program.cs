@@ -11,7 +11,7 @@ namespace ClipBoardHistory
         static void Main()
         {
 
-            const string instanceKey = "ClipBoardHistory89daskj091ncaöm)(43534fdfafda";
+            
             const string appName = "ClipBoardHistory";//test
             bool createdNew = true;
             using (Mutex mutex = new Mutex(true, appName, out createdNew))
@@ -27,7 +27,7 @@ namespace ClipBoardHistory
                 }
                 else
                 {
-                    Clipboard.SetText("ClipBoardHistory89daskj091ncaöm)(43534fdfafda");
+                    Clipboard.SetText(AppConstants.InstanceKey);
                 }
             } 
         }

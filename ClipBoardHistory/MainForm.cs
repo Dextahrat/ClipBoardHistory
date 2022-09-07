@@ -43,14 +43,22 @@ namespace ClipBoardHistory
             {
                 case ClipBoardUtil.Msgs.WM_DRAWCLIPBOARD:
 
-                    Debug.WriteLine("WindowProc DRAWCLIPBOARD: " + m.Msg, "WndProc");
 
                     string txt = _clipBoardUtil.GetClipboardData();
-                    if (!_firstRun && txt == "ClipBoardHistory89daskj091ncaöm)(43534fdfafda")
-                    {//This code --> "ClipBoardHistory89daskj091ncaöm)(43534fdfafda" send by Program.cs when user try to start second instance
+                    if (_firstRun)
+                    {
+                        if (txt == AppConstants.InstanceKey)
+                            txt = "";
+                        _firstRun =false;
+                        return;
+                    }
+
+                    if (txt == AppConstants.InstanceKey)
+                    {//This code --> AppConstants.InstanceKey send by Program.cs when user try to start second instance
                         //we handle this specific string to activete our mainForm
                         var lastText = _clipBoardUtil.GetLastClipboardText();
                         notifyIcon1_DoubleClick(null, null);
+
                         Clipboard.SetText(lastText??"");
                         return;
                     }
@@ -61,7 +69,7 @@ namespace ClipBoardHistory
                             return;
                         }
 
-                        if (!_firstRun && Form.ActiveForm == null)
+                        if (Form.ActiveForm == null)
                         {
                             using var dbcontext = new SQLiteDbContext();
                             dbcontext.Database.EnsureCreated();
@@ -74,8 +82,6 @@ namespace ClipBoardHistory
                             
 
                         }
-
-                        _firstRun = false;
                     }
 
                     ClipBoardUtil.SendMessage(ClipBoardUtil._ClipboardViewerNext, m.Msg, m.WParam, m.LParam);
