@@ -46,8 +46,21 @@ namespace ClipBoardHistory
                     Debug.WriteLine("WindowProc DRAWCLIPBOARD: " + m.Msg, "WndProc");
 
                     string txt = _clipBoardUtil.GetClipboardData();
+                    if (!_firstRun && txt == "ClipBoardHistory89daskj091ncaöm)(43534fdfafda")
+                    {//This code --> "ClipBoardHistory89daskj091ncaöm)(43534fdfafda" send by Program.cs when user try to start second instance
+                        //we handle this specific string to activete our mainForm
+                        var lastText = _clipBoardUtil.GetLastClipboardText();
+                        notifyIcon1_DoubleClick(null, null);
+                        Clipboard.SetText(lastText??"");
+                        return;
+                    }
                     if (!string.IsNullOrEmpty(txt))
                     {
+                        if(txt == _clipBoardUtil.GetLastClipboardText())
+                        {
+                            return;
+                        }
+
                         if (!_firstRun && Form.ActiveForm == null)
                         {
                             using var dbcontext = new SQLiteDbContext();
