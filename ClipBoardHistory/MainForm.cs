@@ -9,6 +9,7 @@ namespace ClipBoardHistory
         ClipBoardUtil _clipBoardUtil = new ClipBoardUtil();
         bool _firstRun = true;
         List<ClipBoardData> _clipBoardDatas = new List<ClipBoardData>();
+        string _lastText;
 
         public MainForm()
         {
@@ -47,8 +48,7 @@ namespace ClipBoardHistory
                     string txt = _clipBoardUtil.GetClipboardData();
                     if (_firstRun)
                     {
-                        if (txt == AppConstants.InstanceKey)
-                            txt = "";
+                        _lastText = txt;
                         _firstRun =false;
                         return;
                     }
@@ -56,15 +56,14 @@ namespace ClipBoardHistory
                     if (txt == AppConstants.InstanceKey)
                     {//This code --> AppConstants.InstanceKey send by Program.cs when user try to start second instance
                         //we handle this specific string to activete our mainForm
-                        var lastText = _clipBoardUtil.GetLastClipboardText();
                         notifyIcon1_DoubleClick(null, null);
-
-                        Clipboard.SetText(lastText??"");
+                        var last = _lastText ?? " ";
+                        Clipboard.SetText(last);
                         return;
                     }
-                    if (!string.IsNullOrEmpty(txt))
+                    if (!string.IsNullOrEmpty((txt??"").Trim()))
                     {
-                        if(txt == _clipBoardUtil.GetLastClipboardText())
+                        if(txt == _lastText)
                         {
                             return;
                         }
@@ -79,8 +78,7 @@ namespace ClipBoardHistory
                             _clipBoardDatas.Add(data);
                             _clipBoardDatas = _clipBoardDatas.OrderByDescending(x => x.CreateDate).ToList();
                             dataGridView1.DataSource= _clipBoardDatas;
-                            
-
+                            _lastText = txt;
                         }
                     }
 

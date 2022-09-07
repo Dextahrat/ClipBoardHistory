@@ -8,9 +8,6 @@ namespace ClipBoardHistory
     public class ClipBoardUtil
     {
         public static IntPtr _ClipboardViewerNext;
-        string _lastText = "";
-
-        public string GetLastClipboardText() => _lastText;
 
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
@@ -51,10 +48,8 @@ namespace ClipBoardHistory
 
             if (iData.GetDataPresent(DataFormats.Text))
             {
-                var txt = (string)iData.GetData(DataFormats.Text);
-                if (txt != AppConstants.InstanceKey)
-                    _lastText = txt;
-                return txt;
+                var a= (string)iData.GetData(DataFormats.Text);
+                return a;
             }
 
             return "";

@@ -27,7 +27,7 @@ namespace ClipBoardHistory
                 }
                 else
                 {
-                    Clipboard.SetText(AppConstants.InstanceKey);
+                    Clipboard.SetDataObject(AppConstants.InstanceKey);
                 }
             } 
         }
