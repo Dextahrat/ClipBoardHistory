@@ -40,6 +40,7 @@ namespace ClipBoardHistory
 
         protected override void WndProc(ref Message m)
         {
+            
             switch ((ClipBoardUtil.Msgs)m.Msg)
             {
                 case ClipBoardUtil.Msgs.WM_DRAWCLIPBOARD:
@@ -48,19 +49,25 @@ namespace ClipBoardHistory
                     string txt = _clipBoardUtil.GetClipboardData();
                     if (_firstRun)
                     {
+                        if (txt == AppConstants.InstanceKey)
+                            txt = " ";
                         _lastText = txt;
                         _firstRun =false;
                         return;
                     }
 
+                    if (!chkEnableCapture.Checked && txt != AppConstants.InstanceKey)
+                        return;
+
                     if (txt == AppConstants.InstanceKey)
                     {//This code --> AppConstants.InstanceKey send by Program.cs when user try to start second instance
                         //we handle this specific string to activete our mainForm
                         notifyIcon1_DoubleClick(null, null);
-                        var last = _lastText ?? " ";
+                        var last = string.IsNullOrEmpty(_lastText) ? " " : _lastText;
                         Clipboard.SetText(last);
                         return;
                     }
+
                     if (!string.IsNullOrEmpty((txt??"").Trim()))
                     {
                         if(txt == _lastText)

@@ -4,6 +4,7 @@ namespace ClipBoardHistory
 {
     internal static class Program
     {
+        private static int tryInstanceCount = 0;
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -11,7 +12,6 @@ namespace ClipBoardHistory
         static void Main()
         {
 
-            
             const string appName = "ClipBoardHistory";//test
             bool createdNew = true;
             using (Mutex mutex = new Mutex(true, appName, out createdNew))
@@ -27,10 +27,31 @@ namespace ClipBoardHistory
                 }
                 else
                 {
-                    Clipboard.SetDataObject(AppConstants.InstanceKey);
+                    SendActivateCurrentInstanceMessage();
                 }
             } 
         }
+
+        private static void SendActivateCurrentInstanceMessage()
+        {
+            try
+            {
+                Clipboard.SetDataObject(AppConstants.InstanceKey,true,2,100);
+            }
+            catch
+            {
+                if (tryInstanceCount > 2)
+                {
+                    MessageBox.Show("Application allready running!");
+                    return;
+                }
+                    
+                tryInstanceCount++;
+                SendActivateCurrentInstanceMessage();
+
+            }
+        }
+
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
         } 

@@ -30,9 +30,16 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.Id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CreateDateWithDay = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Brief = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Note = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CBText = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CreateDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DayColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,13 +48,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
-            this.Id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CreateDateWithDay = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Brief = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Note = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CBText = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CreateDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DayColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.chkEnableCapture = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -86,6 +87,65 @@
             this.dataGridView1.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseDoubleClick);
             this.dataGridView1.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView1_RowPostPaint);
             this.dataGridView1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dataGridView1_MouseDown);
+            // 
+            // Id
+            // 
+            this.Id.DataPropertyName = "Id";
+            this.Id.HeaderText = "";
+            this.Id.Name = "Id";
+            this.Id.ReadOnly = true;
+            this.Id.Width = 5;
+            // 
+            // CreateDateWithDay
+            // 
+            this.CreateDateWithDay.DataPropertyName = "CreateDateWithDay";
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft YaHei", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.CreateDateWithDay.DefaultCellStyle = dataGridViewCellStyle1;
+            this.CreateDateWithDay.HeaderText = "Date";
+            this.CreateDateWithDay.Name = "CreateDateWithDay";
+            this.CreateDateWithDay.ReadOnly = true;
+            this.CreateDateWithDay.Width = 115;
+            // 
+            // Brief
+            // 
+            this.Brief.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Brief.DataPropertyName = "Brief";
+            this.Brief.HeaderText = "Text";
+            this.Brief.Name = "Brief";
+            this.Brief.ReadOnly = true;
+            // 
+            // Note
+            // 
+            this.Note.DataPropertyName = "Note";
+            this.Note.HeaderText = "Note";
+            this.Note.Name = "Note";
+            this.Note.ReadOnly = true;
+            // 
+            // CBText
+            // 
+            this.CBText.DataPropertyName = "CBText";
+            this.CBText.HeaderText = "FullText";
+            this.CBText.Name = "CBText";
+            this.CBText.ReadOnly = true;
+            this.CBText.Visible = false;
+            this.CBText.Width = 500;
+            // 
+            // CreateDate
+            // 
+            this.CreateDate.DataPropertyName = "CreateDate";
+            this.CreateDate.HeaderText = "TarihNormal";
+            this.CreateDate.Name = "CreateDate";
+            this.CreateDate.ReadOnly = true;
+            this.CreateDate.Visible = false;
+            this.CreateDate.Width = 115;
+            // 
+            // DayColor
+            // 
+            this.DayColor.DataPropertyName = "DayColor";
+            this.DayColor.HeaderText = "DayColor";
+            this.DayColor.Name = "DayColor";
+            this.DayColor.ReadOnly = true;
+            this.DayColor.Visible = false;
             // 
             // notifyIcon1
             // 
@@ -159,70 +219,25 @@
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
-            // Id
+            // chkEnableCapture
             // 
-            this.Id.DataPropertyName = "Id";
-            this.Id.HeaderText = "";
-            this.Id.Name = "Id";
-            this.Id.ReadOnly = true;
-            this.Id.Width = 5;
-            // 
-            // CreateDateWithDay
-            // 
-            this.CreateDateWithDay.DataPropertyName = "CreateDateWithDay";
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft YaHei", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.CreateDateWithDay.DefaultCellStyle = dataGridViewCellStyle1;
-            this.CreateDateWithDay.HeaderText = "Date";
-            this.CreateDateWithDay.Name = "CreateDateWithDay";
-            this.CreateDateWithDay.ReadOnly = true;
-            this.CreateDateWithDay.Width = 115;
-            // 
-            // Brief
-            // 
-            this.Brief.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Brief.DataPropertyName = "Brief";
-            this.Brief.HeaderText = "Text";
-            this.Brief.Name = "Brief";
-            this.Brief.ReadOnly = true;
-            // 
-            // Note
-            // 
-            this.Note.DataPropertyName = "Note";
-            this.Note.HeaderText = "Note";
-            this.Note.Name = "Note";
-            this.Note.ReadOnly = true;
-            // 
-            // CBText
-            // 
-            this.CBText.DataPropertyName = "CBText";
-            this.CBText.HeaderText = "FullText";
-            this.CBText.Name = "CBText";
-            this.CBText.ReadOnly = true;
-            this.CBText.Visible = false;
-            this.CBText.Width = 500;
-            // 
-            // CreateDate
-            // 
-            this.CreateDate.DataPropertyName = "CreateDate";
-            this.CreateDate.HeaderText = "TarihNormal";
-            this.CreateDate.Name = "CreateDate";
-            this.CreateDate.ReadOnly = true;
-            this.CreateDate.Visible = false;
-            this.CreateDate.Width = 115;
-            // 
-            // DayColor
-            // 
-            this.DayColor.DataPropertyName = "DayColor";
-            this.DayColor.HeaderText = "DayColor";
-            this.DayColor.Name = "DayColor";
-            this.DayColor.ReadOnly = true;
-            this.DayColor.Visible = false;
+            this.chkEnableCapture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkEnableCapture.AutoSize = true;
+            this.chkEnableCapture.Checked = true;
+            this.chkEnableCapture.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnableCapture.Location = new System.Drawing.Point(607, 427);
+            this.chkEnableCapture.Name = "chkEnableCapture";
+            this.chkEnableCapture.Size = new System.Drawing.Size(183, 19);
+            this.chkEnableCapture.TabIndex = 5;
+            this.chkEnableCapture.Text = "Enable capture clipboard data";
+            this.chkEnableCapture.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.chkEnableCapture);
             this.Controls.Add(this.btnSearch);
             this.Controls.Add(this.txtSearch);
             this.Controls.Add(this.label1);
@@ -260,5 +275,6 @@
         private DataGridViewTextBoxColumn CBText;
         private DataGridViewTextBoxColumn CreateDate;
         private DataGridViewTextBoxColumn DayColor;
+        private CheckBox chkEnableCapture;
     }
 }
