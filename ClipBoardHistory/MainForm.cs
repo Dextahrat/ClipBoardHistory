@@ -23,9 +23,8 @@ namespace ClipBoardHistory
             _clipBoardUtil.RegisterClipboardViewer(this.Handle);
             dataGridView1.AutoGenerateColumns = false;
             _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
+            RefreshGrid();
 
-
-            dataGridView1.DataSource = _clipBoardDatas;
             this.Hide();
 
         }
@@ -36,11 +35,11 @@ namespace ClipBoardHistory
             Application.Exit();
         }
 
-        
+
 
         protected override void WndProc(ref Message m)
         {
-            
+
             switch ((ClipBoardUtil.Msgs)m.Msg)
             {
                 case ClipBoardUtil.Msgs.WM_DRAWCLIPBOARD:
@@ -52,7 +51,7 @@ namespace ClipBoardHistory
                         if (txt == AppConstants.InstanceKey)
                             txt = " ";
                         _lastText = txt;
-                        _firstRun =false;
+                        _firstRun = false;
                         return;
                     }
 
@@ -68,9 +67,9 @@ namespace ClipBoardHistory
                         return;
                     }
 
-                    if (!string.IsNullOrEmpty((txt??"").Trim()))
+                    if (!string.IsNullOrEmpty((txt ?? "").Trim()))
                     {
-                        if(txt == _lastText)
+                        if (txt == _lastText)
                         {
                             return;
                         }
@@ -83,8 +82,7 @@ namespace ClipBoardHistory
                             dbcontext.ClipBoardDatas.Add(data);
                             dbcontext.SaveChanges();
                             _clipBoardDatas.Add(data);
-                            _clipBoardDatas = _clipBoardDatas.OrderByDescending(x => x.CreateDate).ToList();
-                            dataGridView1.DataSource= _clipBoardDatas;
+                            RefreshGrid();
                             _lastText = txt;
                         }
                     }
@@ -114,13 +112,34 @@ namespace ClipBoardHistory
 
         }
 
+        private void RefreshGrid()
+        {
+            List<ClipBoardData> tempDataList = new List<ClipBoardData>();
 
+            tempDataList = _clipBoardDatas.Where(x => (x.CBText ?? "").ToLower().Contains(txtSearch.Text.ToLower()) || (x.Note ?? "").ToLower().Contains(txtSearch.Text.ToLower()) || string.IsNullOrEmpty(txtSearch.Text)).ToList();
+
+            if (chkNoteAdded.Checked)
+            {
+                tempDataList = tempDataList.Where(x => !string.IsNullOrEmpty(x.Note)).ToList();
+            }
+
+            //order
+            tempDataList = tempDataList.OrderByDescending(x => x.CreateDate).ToList();
+
+
+            dataGridView1.DataSource = null;
+            dataGridView1.Refresh();
+
+            dataGridView1.DataSource = tempDataList;
+            dataGridView1.Refresh();
+
+        }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var mItem = (ToolStripMenuItem)sender;
             var info = (DataGridView.HitTestInfo)(mItem.Tag);
-            
+
             var id = Convert.ToInt32(dataGridView1.Rows[info.RowIndex].Cells[0].Value);
 
             using var dbcontext = new SQLiteDbContext();
@@ -128,13 +147,10 @@ namespace ClipBoardHistory
             var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == id);
             dbcontext.ClipBoardDatas.Remove(clipBoardData);
             dbcontext.SaveChanges();
-            _clipBoardDatas.Remove(_clipBoardDatas.FirstOrDefault(x=>x.Id == id));
+            _clipBoardDatas.Remove(_clipBoardDatas.FirstOrDefault(x => x.Id == id));
 
-            dataGridView1.DataSource = null;
-            dataGridView1.Refresh();
+            RefreshGrid();
 
-            dataGridView1.DataSource = _clipBoardDatas;
-            dataGridView1.Refresh();
 
         }
 
@@ -145,7 +161,7 @@ namespace ClipBoardHistory
             {
 
                 var info = dataGridView1.HitTest(e.X, e.Y);
-                var showPoint = new Point(e.X + this.Left + dataGridView1.Left, e.Y+this.Top+dataGridView1.Top);
+                var showPoint = new Point(e.X + this.Left + dataGridView1.Left, e.Y + this.Top + dataGridView1.Top);
                 if (info.RowIndex < 0) return;
                 ContextMenuStrip m = new ContextMenuStrip();
                 var mItem = new ToolStripMenuItem("Delete", null, deleteToolStripMenuItem_Click);
@@ -173,22 +189,18 @@ namespace ClipBoardHistory
                 var frm = new frmNoteDetail();
                 frm.txt = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == null ? "" : dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
                 frm.id = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
-                if(frm.ShowDialog() == DialogResult.OK)
+                if (frm.ShowDialog() == DialogResult.OK)
                 {
                     using var dbcontext = new SQLiteDbContext();
                     dbcontext.Database.EnsureCreated();
                     var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == frm.id);
                     clipBoardData.Note = frm.txt;
                     dbcontext.SaveChanges();
-                    _clipBoardDatas.FirstOrDefault(x => x.Id == frm.id).Note=frm.txt;
+                    _clipBoardDatas.FirstOrDefault(x => x.Id == frm.id).Note = frm.txt;
 
-                    dataGridView1.DataSource = null;
-                    dataGridView1.Refresh();
-
-                    dataGridView1.DataSource = _clipBoardDatas;
-                    dataGridView1.Refresh();
+                    RefreshGrid();
                 }
-                
+
             }
         }
 
@@ -222,11 +234,7 @@ namespace ClipBoardHistory
         {
             _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
 
-            dataGridView1.DataSource = null;
-            dataGridView1.Refresh();
-
-            dataGridView1.DataSource = _clipBoardDatas;
-            dataGridView1.Refresh();
+            RefreshGrid();
         }
 
         private void dataGridView1_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -238,13 +246,8 @@ namespace ClipBoardHistory
         private void btnSearch_Click(object sender, EventArgs e)
         {
             _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
+            RefreshGrid();
 
-            dataGridView1.DataSource = null;
-            dataGridView1.Refresh();
-            var a = _clipBoardDatas.Where(x => (x.CBText ?? "").ToLower().Contains(txtSearch.Text.ToLower()) || (x.Note ?? "").ToLower().Contains(txtSearch.Text.ToLower()) || string.IsNullOrEmpty(txtSearch.Text));
-            dataGridView1.DataSource = a.ToList();
-
-            dataGridView1.Refresh();
         }
 
         private void txtSearch_KeyDown(object sender, KeyEventArgs e)
@@ -253,6 +256,11 @@ namespace ClipBoardHistory
             {
                 btnSearch_Click(this, new EventArgs());
             }
+        }
+
+        private void chkNoteAdded_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshGrid();
         }
     }
 }

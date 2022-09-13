@@ -49,6 +49,7 @@
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
             this.chkEnableCapture = new System.Windows.Forms.CheckBox();
+            this.chkNoteAdded = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -203,7 +204,7 @@
             // 
             // txtSearch
             // 
-            this.txtSearch.Location = new System.Drawing.Point(267, 7);
+            this.txtSearch.Location = new System.Drawing.Point(264, 7);
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.Size = new System.Drawing.Size(202, 23);
             this.txtSearch.TabIndex = 3;
@@ -212,7 +213,7 @@
             // btnSearch
             // 
             this.btnSearch.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnSearch.BackgroundImage")));
-            this.btnSearch.Location = new System.Drawing.Point(469, 7);
+            this.btnSearch.Location = new System.Drawing.Point(466, 7);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(24, 24);
             this.btnSearch.TabIndex = 4;
@@ -232,11 +233,23 @@
             this.chkEnableCapture.Text = "Enable capture clipboard data";
             this.chkEnableCapture.UseVisualStyleBackColor = true;
             // 
+            // chkNoteAdded
+            // 
+            this.chkNoteAdded.AutoSize = true;
+            this.chkNoteAdded.Location = new System.Drawing.Point(499, 9);
+            this.chkNoteAdded.Name = "chkNoteAdded";
+            this.chkNoteAdded.Size = new System.Drawing.Size(121, 19);
+            this.chkNoteAdded.TabIndex = 6;
+            this.chkNoteAdded.Text = "Records with note";
+            this.chkNoteAdded.UseVisualStyleBackColor = true;
+            this.chkNoteAdded.CheckedChanged += new System.EventHandler(this.chkNoteAdded_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.chkNoteAdded);
             this.Controls.Add(this.chkEnableCapture);
             this.Controls.Add(this.btnSearch);
             this.Controls.Add(this.txtSearch);
@@ -276,5 +289,6 @@
         private DataGridViewTextBoxColumn CreateDate;
         private DataGridViewTextBoxColumn DayColor;
         private CheckBox chkEnableCapture;
+        private CheckBox chkNoteAdded;
     }
 }
