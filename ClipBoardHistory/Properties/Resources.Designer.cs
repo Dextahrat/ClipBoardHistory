@@ -59,5 +59,25 @@ namespace ClipBoardHistory.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon Untitled {
+            get {
+                object obj = ResourceManager.GetObject("Untitled", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon UntitledDisable {
+            get {
+                object obj = ResourceManager.GetObject("UntitledDisable", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

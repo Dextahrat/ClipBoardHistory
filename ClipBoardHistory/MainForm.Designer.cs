@@ -44,6 +44,7 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cmbDateFilter = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
@@ -160,23 +161,32 @@
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showToolStripMenuItem,
-            this.exitToolStripMenuItem});
+            this.exitToolStripMenuItem,
+            this.enableStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(104, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(110, 70);
             // 
             // showToolStripMenuItem
             // 
             this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            this.showToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.showToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.showToolStripMenuItem.Text = "Show";
             this.showToolStripMenuItem.Click += new System.EventHandler(this.showToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // enableStripMenuItem
+            // 
+            this.enableStripMenuItem.CheckOnClick = true;
+            this.enableStripMenuItem.Name = "enableStripMenuItem";
+            this.enableStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.enableStripMenuItem.Text = "Enable";
+            this.enableStripMenuItem.Click += new System.EventHandler(this.enableStripMenuItem_Click);
             // 
             // cmbDateFilter
             // 
@@ -232,6 +242,7 @@
             this.chkEnableCapture.TabIndex = 5;
             this.chkEnableCapture.Text = "Enable capture clipboard data";
             this.chkEnableCapture.UseVisualStyleBackColor = true;
+            this.chkEnableCapture.CheckedChanged += new System.EventHandler(this.chkEnableCapture_CheckedChanged);
             // 
             // chkNoteAdded
             // 
@@ -290,5 +301,6 @@
         private DataGridViewTextBoxColumn DayColor;
         private CheckBox chkEnableCapture;
         private CheckBox chkNoteAdded;
+        private ToolStripMenuItem enableStripMenuItem;
     }
 }

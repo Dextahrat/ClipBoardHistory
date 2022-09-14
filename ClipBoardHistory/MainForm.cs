@@ -18,6 +18,8 @@ namespace ClipBoardHistory
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            enableStripMenuItem.Checked = true;
+            notifyIcon1.Icon = Properties.Resources.Untitled;
             cmbDateFilter.SelectedIndex = 1;
             this.ShowInTaskbar = false;
             _clipBoardUtil.RegisterClipboardViewer(this.Handle);
@@ -261,6 +263,32 @@ namespace ClipBoardHistory
         private void chkNoteAdded_CheckedChanged(object sender, EventArgs e)
         {
             RefreshGrid();
+        }
+
+        private void chkEnableCapture_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkEnableCapture.Checked)
+            {
+                enableStripMenuItem.Checked = true;
+                notifyIcon1.Icon = Properties.Resources.Untitled;
+            }
+            else
+            {
+                enableStripMenuItem.Checked = false;
+                notifyIcon1.Icon = Properties.Resources.UntitledDisable;
+            }
+        }
+
+        private void enableStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (chkEnableCapture.Checked)
+            {
+                chkEnableCapture.Checked = false;
+            }
+            else
+            {
+                chkEnableCapture.Checked = true;
+            }
         }
     }
 }
