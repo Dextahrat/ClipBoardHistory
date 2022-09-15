@@ -18,7 +18,7 @@ namespace ClipBoardHistory
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            enableStripMenuItem.Checked = true;
+            disableStripMenuItem.Checked = false;
             notifyIcon1.Icon = Properties.Resources.Untitled;
             cmbDateFilter.SelectedIndex = 1;
             this.ShowInTaskbar = false;
@@ -57,7 +57,7 @@ namespace ClipBoardHistory
                         return;
                     }
 
-                    if (!chkEnableCapture.Checked && txt != AppConstants.InstanceKey)
+                    if (chkDisableCapture.Checked && txt != AppConstants.InstanceKey)
                         return;
 
                     if (txt == AppConstants.InstanceKey)
@@ -265,30 +265,15 @@ namespace ClipBoardHistory
             RefreshGrid();
         }
 
-        private void chkEnableCapture_CheckedChanged(object sender, EventArgs e)
+        private void chkDisableCapture_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkEnableCapture.Checked)
-            {
-                enableStripMenuItem.Checked = true;
-                notifyIcon1.Icon = Properties.Resources.Untitled;
-            }
-            else
-            {
-                enableStripMenuItem.Checked = false;
-                notifyIcon1.Icon = Properties.Resources.UntitledDisable;
-            }
+            disableStripMenuItem.Checked = chkDisableCapture.Checked;
+            notifyIcon1.Icon = chkDisableCapture.Checked ? Properties.Resources.UntitledDisable : Properties.Resources.Untitled;
         }
 
-        private void enableStripMenuItem_Click(object sender, EventArgs e)
+        private void disableStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (chkEnableCapture.Checked)
-            {
-                chkEnableCapture.Checked = false;
-            }
-            else
-            {
-                chkEnableCapture.Checked = true;
-            }
+            chkDisableCapture.Checked = !chkDisableCapture.Checked;
         }
     }
 }
