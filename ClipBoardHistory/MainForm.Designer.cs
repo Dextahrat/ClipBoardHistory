@@ -44,12 +44,12 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.enableStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cmbDateFilter = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
-            this.chkEnableCapture = new System.Windows.Forms.CheckBox();
+            this.chkDisableCapture = new System.Windows.Forms.CheckBox();
             this.chkNoteAdded = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
@@ -79,12 +79,13 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.RowHeadersWidth = 51;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView1.RowTemplate.Height = 25;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(776, 385);
+            this.dataGridView1.Size = new System.Drawing.Size(776, 410);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseDoubleClick);
             this.dataGridView1.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView1_RowPostPaint);
@@ -94,9 +95,10 @@
             // 
             this.Id.DataPropertyName = "Id";
             this.Id.HeaderText = "";
+            this.Id.MinimumWidth = 6;
             this.Id.Name = "Id";
             this.Id.ReadOnly = true;
-            this.Id.Width = 5;
+            this.Id.Width = 6;
             // 
             // CreateDateWithDay
             // 
@@ -104,6 +106,7 @@
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft YaHei", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.CreateDateWithDay.DefaultCellStyle = dataGridViewCellStyle1;
             this.CreateDateWithDay.HeaderText = "Date";
+            this.CreateDateWithDay.MinimumWidth = 6;
             this.CreateDateWithDay.Name = "CreateDateWithDay";
             this.CreateDateWithDay.ReadOnly = true;
             this.CreateDateWithDay.Width = 115;
@@ -113,6 +116,7 @@
             this.Brief.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.Brief.DataPropertyName = "Brief";
             this.Brief.HeaderText = "Text";
+            this.Brief.MinimumWidth = 6;
             this.Brief.Name = "Brief";
             this.Brief.ReadOnly = true;
             // 
@@ -120,13 +124,16 @@
             // 
             this.Note.DataPropertyName = "Note";
             this.Note.HeaderText = "Note";
+            this.Note.MinimumWidth = 6;
             this.Note.Name = "Note";
             this.Note.ReadOnly = true;
+            this.Note.Width = 125;
             // 
             // CBText
             // 
             this.CBText.DataPropertyName = "CBText";
             this.CBText.HeaderText = "FullText";
+            this.CBText.MinimumWidth = 6;
             this.CBText.Name = "CBText";
             this.CBText.ReadOnly = true;
             this.CBText.Visible = false;
@@ -136,6 +143,7 @@
             // 
             this.CreateDate.DataPropertyName = "CreateDate";
             this.CreateDate.HeaderText = "TarihNormal";
+            this.CreateDate.MinimumWidth = 6;
             this.CreateDate.Name = "CreateDate";
             this.CreateDate.ReadOnly = true;
             this.CreateDate.Visible = false;
@@ -145,9 +153,11 @@
             // 
             this.DayColor.DataPropertyName = "DayColor";
             this.DayColor.HeaderText = "DayColor";
+            this.DayColor.MinimumWidth = 6;
             this.DayColor.Name = "DayColor";
             this.DayColor.ReadOnly = true;
             this.DayColor.Visible = false;
+            this.DayColor.Width = 125;
             // 
             // notifyIcon1
             // 
@@ -159,34 +169,35 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showToolStripMenuItem,
             this.exitToolStripMenuItem,
-            this.enableStripMenuItem});
+            this.disableStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(110, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 92);
             // 
             // showToolStripMenuItem
             // 
             this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            this.showToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.showToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.showToolStripMenuItem.Text = "Show";
             this.showToolStripMenuItem.Click += new System.EventHandler(this.showToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
-            // enableStripMenuItem
+            // disableStripMenuItem
             // 
-            this.enableStripMenuItem.CheckOnClick = true;
-            this.enableStripMenuItem.Name = "enableStripMenuItem";
-            this.enableStripMenuItem.Size = new System.Drawing.Size(109, 22);
-            this.enableStripMenuItem.Text = "Enable";
-            this.enableStripMenuItem.Click += new System.EventHandler(this.enableStripMenuItem_Click);
+            this.disableStripMenuItem.CheckOnClick = true;
+            this.disableStripMenuItem.Name = "disableStripMenuItem";
+            this.disableStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.disableStripMenuItem.Text = "Disable";
+            this.disableStripMenuItem.Click += new System.EventHandler(this.disableStripMenuItem_Click);
             // 
             // cmbDateFilter
             // 
@@ -230,24 +241,22 @@
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
-            // chkEnableCapture
+            // chkDisableCapture
             // 
-            this.chkEnableCapture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkEnableCapture.AutoSize = true;
-            this.chkEnableCapture.Checked = true;
-            this.chkEnableCapture.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkEnableCapture.Location = new System.Drawing.Point(607, 427);
-            this.chkEnableCapture.Name = "chkEnableCapture";
-            this.chkEnableCapture.Size = new System.Drawing.Size(183, 19);
-            this.chkEnableCapture.TabIndex = 5;
-            this.chkEnableCapture.Text = "Enable capture clipboard data";
-            this.chkEnableCapture.UseVisualStyleBackColor = true;
-            this.chkEnableCapture.CheckedChanged += new System.EventHandler(this.chkEnableCapture_CheckedChanged);
+            this.chkDisableCapture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkDisableCapture.AutoSize = true;
+            this.chkDisableCapture.Location = new System.Drawing.Point(668, 9);
+            this.chkDisableCapture.Name = "chkDisableCapture";
+            this.chkDisableCapture.Size = new System.Drawing.Size(120, 19);
+            this.chkDisableCapture.TabIndex = 5;
+            this.chkDisableCapture.Text = "Disable Capturing";
+            this.chkDisableCapture.UseVisualStyleBackColor = true;
+            this.chkDisableCapture.CheckedChanged += new System.EventHandler(this.chkDisableCapture_CheckedChanged);
             // 
             // chkNoteAdded
             // 
             this.chkNoteAdded.AutoSize = true;
-            this.chkNoteAdded.Location = new System.Drawing.Point(499, 9);
+            this.chkNoteAdded.Location = new System.Drawing.Point(503, 10);
             this.chkNoteAdded.Name = "chkNoteAdded";
             this.chkNoteAdded.Size = new System.Drawing.Size(121, 19);
             this.chkNoteAdded.TabIndex = 6;
@@ -261,7 +270,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.chkNoteAdded);
-            this.Controls.Add(this.chkEnableCapture);
+            this.Controls.Add(this.chkDisableCapture);
             this.Controls.Add(this.btnSearch);
             this.Controls.Add(this.txtSearch);
             this.Controls.Add(this.label1);
@@ -299,8 +308,8 @@
         private DataGridViewTextBoxColumn CBText;
         private DataGridViewTextBoxColumn CreateDate;
         private DataGridViewTextBoxColumn DayColor;
-        private CheckBox chkEnableCapture;
         private CheckBox chkNoteAdded;
-        private ToolStripMenuItem enableStripMenuItem;
+        private ToolStripMenuItem disableStripMenuItem;
+        private CheckBox chkDisableCapture;
     }
 }
