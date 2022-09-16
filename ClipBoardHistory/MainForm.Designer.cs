@@ -243,7 +243,6 @@
             // 
             // chkDisableCapture
             // 
-            this.chkDisableCapture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.chkDisableCapture.AutoSize = true;
             this.chkDisableCapture.Location = new System.Drawing.Point(668, 9);
             this.chkDisableCapture.Name = "chkDisableCapture";
