@@ -17,7 +17,8 @@ namespace ClipBoardHistory
 
         private const string CreateDateIndexName = "IX_ClipboardDatas_CreateDate";
 
-        public DbSet<ClipBoardData>? ClipBoardDatas { get; set; }
+        // EF Core bu özelliği context oluşturulurken kendisi doldurur; bu yüzden null olmaz.
+        public DbSet<ClipBoardData> ClipBoardDatas { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -49,14 +50,12 @@ namespace ClipBoardHistory
         }
 
         /// <summary>
-        /// Uygulama açılışında bir kez çağrılır: veri klasörünü oluşturur, eski konumdaki
-        /// veritabanını yeni konuma kopyalar, tabloyu ve tarih indeksini garanti eder.
+        /// Uygulama açılışında bir kez çağrılır: veri ve resim klasörlerini oluşturur, veritabanı yoksa
+        /// boş olarak oluşturur, eksik sütunları ve tarih indeksini garanti eder.
         /// </summary>
         public static void Initialize()
         {
             Directory.CreateDirectory(AppConstants.DataDirectory);
-            CopyLegacyDatabaseIfNeeded();
-
             Directory.CreateDirectory(AppConstants.ImageDirectory);
 
             using var dbcontext = new SQLiteDbContext();
@@ -121,51 +120,17 @@ namespace ClipBoardHistory
 
             foreach (var columnName in columnNames)
             {
+                // Sütun adları SQL parametresi olarak verilemez (ALTER TABLE'da kimlik parametrelenemez).
+                // Bu yüzden ad metne eklenir; enjeksiyona karşı sadece harflerden oluşan adlara izin verilir.
+                // Adlar zaten koddaki sabitlerdir (Rtf, Html, ImagePath).
+                if (columnName.Length == 0 || !columnName.All(char.IsAsciiLetter))
+                    throw new ArgumentException("Invalid column name: " + columnName, nameof(columnNames));
+
                 if (!existingColumns.Contains(columnName))
-                    dbcontext.Database.ExecuteSqlRaw("ALTER TABLE \"ClipboardDatas\" ADD COLUMN \"" + columnName + "\" TEXT NULL;");
-            }
-        }
-
-        /// <summary>
-        /// Exe'nin yanında veritabanı yoksa eski konumlardan birinde aranır ve oradan kopyalanır:
-        /// - Çalışma dizini (ilk sürümler veritabanını göreli yolla buraya yazıyordu)
-        /// - %LOCALAPPDATA%\ClipBoardHistory (bir önceki geliştirme sürümü; resimleri de kopyalanır)
-        /// Eski dosyalar silinmez, yedek olarak yerinde kalır.
-        /// </summary>
-        private static void CopyLegacyDatabaseIfNeeded()
-        {
-            if (File.Exists(AppConstants.DatabasePath))
-                return;
-
-            var legacyPath = new[] { Environment.CurrentDirectory, AppConstants.LegacyLocalDataDirectory }
-                .Select(dir => Path.GetFullPath(Path.Combine(dir, AppConstants.DatabaseFileName)))
-                .Where(path => !string.Equals(path, AppConstants.DatabasePath, StringComparison.OrdinalIgnoreCase))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(path => File.Exists(path))
-                .OrderByDescending(path => File.GetLastWriteTimeUtc(path))
-                .FirstOrDefault();
-
-            if (legacyPath == null)
-                return;
-
-            // SQLite WAL modundaysa yardımcı dosyalar da taşınmalı.
-            foreach (var suffix in new[] { "", "-wal", "-shm" })
-            {
-                var source = legacyPath + suffix;
-                if (File.Exists(source))
-                    File.Copy(source, AppConstants.DatabasePath + suffix, overwrite: false);
-            }
-
-            // Veritabanı %LOCALAPPDATA%'dan geldiyse oradaki resimler de exe'nin yanına kopyalanır.
-            var legacyImageDirectory = Path.Combine(Path.GetDirectoryName(legacyPath)!, "Images");
-            if (Directory.Exists(legacyImageDirectory))
-            {
-                Directory.CreateDirectory(AppConstants.ImageDirectory);
-                foreach (var source in Directory.GetFiles(legacyImageDirectory, "*.png"))
                 {
-                    var target = Path.Combine(AppConstants.ImageDirectory, Path.GetFileName(source));
-                    if (!File.Exists(target))
-                        File.Copy(source, target);
+#pragma warning disable EF1003 // Ad yukarıda doğrulandı.
+                    dbcontext.Database.ExecuteSqlRaw("ALTER TABLE \"ClipboardDatas\" ADD COLUMN \"" + columnName + "\" TEXT NULL;");
+#pragma warning restore EF1003
                 }
             }
         }

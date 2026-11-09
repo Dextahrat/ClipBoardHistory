@@ -13,6 +13,9 @@
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
+    <!-- EF Core 10.0.0 dolaylı olarak SQLitePCLRaw 2.1.11 getiriyor; içindeki SQLite'ta güvenlik açığı var
+         (GHSA-2m69-gcr7-jv3q / CVE-2025-6965). Doğrudan referansla düzeltilmiş sürüm kullanılır. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.14" />
   </ItemGroup>
 
   <ItemGroup>

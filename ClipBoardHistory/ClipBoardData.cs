@@ -19,7 +19,7 @@ namespace ClipBoardHistory
                 if (IsImage)
                     return "[Image]" + Environment.NewLine + Environment.NewLine + " -- For More Double Click -- ";
 
-                string temp = CBText;
+                string? temp = CBText;
                 if (!string.IsNullOrEmpty(temp))
                 {
                     //4 satırdan fazla olan textler için brief kısmında satır sayısı kıs

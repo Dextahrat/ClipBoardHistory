@@ -14,14 +14,6 @@ namespace ClipBoardHistory
         /// </summary>
         public static readonly string DataDirectory = Path.GetFullPath(AppContext.BaseDirectory);
 
-        /// <summary>
-        /// Bir önceki geliştirme sürümünün kullandığı klasör (%LOCALAPPDATA%\ClipBoardHistory).
-        /// Sadece oradaki verileri exe'nin yanına geri kopyalamak için kullanılır.
-        /// </summary>
-        public static readonly string LegacyLocalDataDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "ClipBoardHistory");
-
         public static readonly string DatabasePath = Path.Combine(DataDirectory, DatabaseFileName);
 
         public static readonly string LogDirectory = Path.Combine(DataDirectory, "Logs");

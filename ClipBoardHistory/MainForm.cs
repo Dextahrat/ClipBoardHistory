@@ -180,19 +180,22 @@ namespace ClipBoardHistory
 
         }
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void deleteToolStripMenuItem_Click(object? sender, EventArgs e)
         {
-            var mItem = (ToolStripMenuItem)sender;
-            var info = (DataGridView.HitTestInfo)(mItem.Tag);
+            if (sender is not ToolStripMenuItem mItem || mItem.Tag is not DataGridView.HitTestInfo info)
+                return;
 
             var id = Convert.ToInt32(dataGridView1.Rows[info.RowIndex].Cells[0].Value);
 
             using var dbcontext = new SQLiteDbContext();
             var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == id);
             var imageFile = clipBoardData?.ImagePath;
-            dbcontext.ClipBoardDatas.Remove(clipBoardData);
-            dbcontext.SaveChanges();
-            _clipBoardDatas.Remove(_clipBoardDatas.FirstOrDefault(x => x.Id == id));
+            if (clipBoardData != null)
+            {
+                dbcontext.ClipBoardDatas.Remove(clipBoardData);
+                dbcontext.SaveChanges();
+            }
+            _clipBoardDatas.RemoveAll(x => x.Id == id);
 
             // Aynı resmi kullanan başka kayıt kalmadıysa resim dosyası da silinir.
             if (!string.IsNullOrEmpty(imageFile) && !dbcontext.ClipBoardDatas.Any(x => x.ImagePath == imageFile))
@@ -209,10 +212,10 @@ namespace ClipBoardHistory
 
 
         // Kaydı (resim veya biçimli metin dahil) panoya geri koyar.
-        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        private void copyToolStripMenuItem_Click(object? sender, EventArgs e)
         {
-            var mItem = (ToolStripMenuItem)sender;
-            var info = (DataGridView.HitTestInfo)(mItem.Tag);
+            if (sender is not ToolStripMenuItem mItem || mItem.Tag is not DataGridView.HitTestInfo info)
+                return;
 
             var id = Convert.ToInt32(dataGridView1.Rows[info.RowIndex].Cells[0].Value);
             var record = _clipBoardUtil.GetClipBoardData(id);
@@ -249,7 +252,8 @@ namespace ClipBoardHistory
             if (e.ColumnIndex == 2)
             {//Text formunu aç.
                 // Listede Rtf/Html yüklü değil; tam kayıt veritabanından çekilir.
-                var row = (ClipBoardData)dataGridView1.Rows[e.RowIndex].DataBoundItem;
+                if (dataGridView1.Rows[e.RowIndex].DataBoundItem is not ClipBoardData row)
+                    return;
                 var record = _clipBoardUtil.GetClipBoardData(row.Id) ?? row;
 
                 using var frm = new frmTextDetail();
@@ -261,15 +265,21 @@ namespace ClipBoardHistory
             else if (e.ColumnIndex == 3)
             {//Note formunu aç.
                 var frm = new frmNoteDetail();
-                frm.txt = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == null ? "" : dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
-                frm.id = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
+                frm.txt = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() ?? "";
+                frm.id = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[0].Value);
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     using var dbcontext = new SQLiteDbContext();
                     var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == frm.id);
-                    clipBoardData.Note = frm.txt;
-                    dbcontext.SaveChanges();
-                    _clipBoardDatas.FirstOrDefault(x => x.Id == frm.id).Note = frm.txt;
+                    if (clipBoardData != null)
+                    {
+                        clipBoardData.Note = frm.txt;
+                        dbcontext.SaveChanges();
+                    }
+
+                    var listItem = _clipBoardDatas.FirstOrDefault(x => x.Id == frm.id);
+                    if (listItem != null)
+                        listItem.Note = frm.txt;
 
                     RefreshGrid();
                 }
