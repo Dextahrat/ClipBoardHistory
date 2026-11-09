@@ -5,27 +5,26 @@ namespace ClipBoardHistory
     public class ClipBoardData
     {
         public int Id { get; set; }
-        public string? CreateDateWithDay 
-        { 
-            get 
+        public string? CreateDateWithDay
+        {
+            get
             {
-                var date = DateTime.ParseExact(CreateDate ?? DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss") , "yyyy-MM-dd HH:mm:ss",null);
-                return date.ToString("yyyy-MM-dd HH:mm:ss")+Environment.NewLine+Environment.NewLine+date.ToString("dddd"); 
-            } 
+                return CreateDate.ToString(SQLiteDbContext.DateFormat) + Environment.NewLine + Environment.NewLine + CreateDate.ToString("dddd");
+            }
         }
         public string? Brief
         {
             get
             {
                 string temp = CBText;
-                if (!string.IsNullOrEmpty(temp)) 
+                if (!string.IsNullOrEmpty(temp))
                 {
                     //4 satırdan fazla olan textler için brief kısmında satır sayısı kıs
                     var newLineCount = temp.Length - temp.Replace(Environment.NewLine,"").Length;
                     if (newLineCount > 4)
                     {
                         var tempArray = temp.Split(Environment.NewLine);
-                        temp =  (tempArray[0]??"") + Environment.NewLine + (tempArray[1]??"") + Environment.NewLine 
+                        temp =  (tempArray[0]??"") + Environment.NewLine + (tempArray[1]??"") + Environment.NewLine
                             + (tempArray[2]??"") + Environment.NewLine + (tempArray[3]??"") + Environment.NewLine
                             + Environment.NewLine + " -- For More Double Click -- ";
                     }
@@ -41,27 +40,32 @@ namespace ClipBoardHistory
         public string? Note { get; set; }
 
         public string? CBText { get; set; }
-        public string? CreateDate { get; set; }
-        public Color DayColor 
+
+        /// <summary>
+        /// Veritabanında "yyyy-MM-dd HH:mm:ss" biçiminde metin olarak saklanır
+        /// (bkz. SQLiteDbContext.OnModelCreating), kodda DateTime olarak kullanılır.
+        /// </summary>
+        public DateTime CreateDate { get; set; }
+
+        public Color DayColor
         {
-            get 
+            get
             {
-                var date = DateTime.ParseExact(CreateDate ?? DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", null);
-                switch ((int)(date.DayOfWeek))
+                switch (CreateDate.DayOfWeek)
                 {
-                    case 1:
+                    case DayOfWeek.Monday:
                         return Color.Green;
-                    case 2:
+                    case DayOfWeek.Tuesday:
                         return Color.Red;
-                    case 3:
+                    case DayOfWeek.Wednesday:
                         return Color.Blue;
-                    case 4:
+                    case DayOfWeek.Thursday:
                         return Color.SaddleBrown;
-                    case 5:
+                    case DayOfWeek.Friday:
                         return Color.Yellow;
-                    case 6:
+                    case DayOfWeek.Saturday:
                         return Color.Orange;
-                    case 0:
+                    case DayOfWeek.Sunday:
                         return Color.Orchid;
                     default:
                         return Color.White;

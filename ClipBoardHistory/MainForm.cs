@@ -1,3 +1,4 @@
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
 
@@ -7,9 +8,9 @@ namespace ClipBoardHistory
     public partial class MainForm : Form
     {
         ClipBoardUtil _clipBoardUtil = new ClipBoardUtil();
-        bool _firstRun = true;
         List<ClipBoardData> _clipBoardDatas = new List<ClipBoardData>();
-        string _lastText;
+        string? _lastText;
+        IntPtr _listenerHandle = IntPtr.Zero;
 
         public MainForm()
         {
@@ -18,11 +19,16 @@ namespace ClipBoardHistory
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            SQLiteDbContext.Initialize();
+
+            // Açılış anında panoda olan metin kaydedilmez, sadece "son metin" olarak hatırlanır.
+            var initialText = _clipBoardUtil.GetClipboardData();
+            _lastText = initialText == AppConstants.InstanceKey ? " " : initialText;
+
             disableStripMenuItem.Checked = false;
             notifyIcon1.Icon = Properties.Resources.Untitled;
             cmbDateFilter.SelectedIndex = 1;
             this.ShowInTaskbar = false;
-            _clipBoardUtil.RegisterClipboardViewer(this.Handle);
             dataGridView1.AutoGenerateColumns = false;
             _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
             RefreshGrid();
@@ -33,85 +39,79 @@ namespace ClipBoardHistory
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _clipBoardUtil.UnregisterClipboardViewer(this.Handle);
             Application.Exit();
         }
 
+        // Pencere tanıtıcısı (handle) yeniden oluşturulabildiği için (örn. ShowInTaskbar değişince)
+        // pano dinleyici kaydı her handle oluşturulduğunda yapılır, yok edildiğinde kaldırılır.
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
 
+            var error = _clipBoardUtil.RegisterClipboardListener(this.Handle);
+            if (error != 0)
+                ExceptionHandler.HandleException(new Win32Exception(error, "AddClipboardFormatListener failed"));
+            else
+                _listenerHandle = this.Handle;
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            if (_listenerHandle != IntPtr.Zero)
+            {
+                _clipBoardUtil.UnregisterClipboardListener(_listenerHandle);
+                _listenerHandle = IntPtr.Zero;
+            }
+            base.OnHandleDestroyed(e);
+        }
 
         protected override void WndProc(ref Message m)
         {
-
-            switch ((ClipBoardUtil.Msgs)m.Msg)
+            if (m.Msg == (int)ClipBoardUtil.Msgs.WM_CLIPBOARDUPDATE)
             {
-                case ClipBoardUtil.Msgs.WM_DRAWCLIPBOARD:
-
-
-                    string txt = _clipBoardUtil.GetClipboardData();
-                    if (_firstRun)
-                    {
-                        if (txt == AppConstants.InstanceKey)
-                            txt = " ";
-                        _lastText = txt;
-                        _firstRun = false;
-                        return;
-                    }
-
-                    if (chkDisableCapture.Checked && txt != AppConstants.InstanceKey)
-                        return;
-
-                    if (txt == AppConstants.InstanceKey)
-                    {//This code --> AppConstants.InstanceKey send by Program.cs when user try to start second instance
-                        //we handle this specific string to activete our mainForm
-                        notifyIcon1_DoubleClick(null, null);
-                        var last = string.IsNullOrEmpty(_lastText) ? " " : _lastText;
-                        Clipboard.SetText(last);
-                        return;
-                    }
-
-                    if (!string.IsNullOrEmpty((txt ?? "").Trim()))
-                    {
-                        if (txt == _lastText)
-                        {
-                            return;
-                        }
-
-                        if (Form.ActiveForm == null)
-                        {
-                            using var dbcontext = new SQLiteDbContext();
-                            dbcontext.Database.EnsureCreated();
-                            ClipBoardData data = new ClipBoardData() { CBText = txt, CreateDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") };
-                            dbcontext.ClipBoardDatas.Add(data);
-                            dbcontext.SaveChanges();
-                            _clipBoardDatas.Add(data);
-                            RefreshGrid();
-                            _lastText = txt;
-                        }
-                    }
-
-                    ClipBoardUtil.SendMessage(ClipBoardUtil._ClipboardViewerNext, m.Msg, m.WParam, m.LParam);
-                    break;
-
-                case ClipBoardUtil.Msgs.WM_CHANGECBCHAIN:
-                    Debug.WriteLine("WM_CHANGECBCHAIN: lParam: " + m.LParam, "WndProc");
-
-
-                    if (m.WParam == ClipBoardUtil._ClipboardViewerNext)
-                    {
-                        ClipBoardUtil._ClipboardViewerNext = m.LParam;
-                    }
-                    else
-                    {
-                        ClipBoardUtil.SendMessage(ClipBoardUtil._ClipboardViewerNext, m.Msg, m.WParam, m.LParam);
-                    }
-                    break;
-
-                default:
-                    base.WndProc(ref m);
-                    break;
-
+                OnClipboardUpdate();
+                m.Result = IntPtr.Zero;
+                return;
             }
 
+            base.WndProc(ref m);
+        }
+
+        private void OnClipboardUpdate()
+        {
+            string txt = _clipBoardUtil.GetClipboardData();
+
+            if (txt == AppConstants.InstanceKey)
+            {//This code --> AppConstants.InstanceKey send by Program.cs when user try to start second instance
+                //we handle this specific string to activete our mainForm
+                notifyIcon1_DoubleClick(this, EventArgs.Empty);
+                var last = string.IsNullOrEmpty(_lastText) ? " " : _lastText;
+                Clipboard.SetText(last);
+                return;
+            }
+
+            if (chkDisableCapture.Checked)
+                return;
+
+            if (string.IsNullOrEmpty((txt ?? "").Trim()))
+                return;
+
+            if (txt == _lastText)
+                return;
+
+            if (Form.ActiveForm != null)
+                return;
+
+            var now = DateTime.Now;
+            now = now.AddTicks(-(now.Ticks % TimeSpan.TicksPerSecond)); // veritabanı saniye hassasiyetinde saklar
+
+            using var dbcontext = new SQLiteDbContext();
+            ClipBoardData data = new ClipBoardData() { CBText = txt, CreateDate = now };
+            dbcontext.ClipBoardDatas!.Add(data);
+            dbcontext.SaveChanges();
+            _clipBoardDatas.Add(data);
+            RefreshGrid();
+            _lastText = txt;
         }
 
         private void RefreshGrid()
@@ -145,7 +145,6 @@ namespace ClipBoardHistory
             var id = Convert.ToInt32(dataGridView1.Rows[info.RowIndex].Cells[0].Value);
 
             using var dbcontext = new SQLiteDbContext();
-            dbcontext.Database.EnsureCreated();
             var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == id);
             dbcontext.ClipBoardDatas.Remove(clipBoardData);
             dbcontext.SaveChanges();
@@ -181,20 +180,19 @@ namespace ClipBoardHistory
         {
             if (e.RowIndex < 0) return;
             if (e.ColumnIndex == 2)
-            {//Text formunu a�.
+            {//Text formunu aç.
                 var frm = new frmTextDetail();
                 frm.txt = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
                 frm.ShowDialog();
             }
             else if (e.ColumnIndex == 3)
-            {//Note formunu a�.
+            {//Note formunu aç.
                 var frm = new frmNoteDetail();
                 frm.txt = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == null ? "" : dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
                 frm.id = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     using var dbcontext = new SQLiteDbContext();
-                    dbcontext.Database.EnsureCreated();
                     var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == frm.id);
                     clipBoardData.Note = frm.txt;
                     dbcontext.SaveChanges();

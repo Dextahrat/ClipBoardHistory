@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -7,36 +8,39 @@ namespace ClipBoardHistory
 {
     public class ClipBoardUtil
     {
-        public static IntPtr _ClipboardViewerNext;
+        // Eski SetClipboardViewer zinciri yerine Vista+ pano dinleyici API'si kullanılır.
+        // Bu API'de zincir yoktur; her dinleyici WM_CLIPBOARDUPDATE mesajını doğrudan alır,
+        // bu yüzden bir uygulamanın mesajı iletmemesi diğerlerini etkilemez.
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool AddClipboardFormatListener(IntPtr hwnd);
 
-        [DllImport("User32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool RemoveClipboardFormatListener(IntPtr hwnd);
 
-        [DllImport("User32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr ChangeClipboardChain(IntPtr hWndNewViewer, IntPtr hWndNewNext);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
-
-        public void RegisterClipboardViewer(IntPtr hWndNewViewer)
+        /// <summary>
+        /// Pencereyi pano dinleyicisi olarak kaydeder. Başarısız olursa Win32 hata kodunu döndürür, başarılıysa 0.
+        /// </summary>
+        public int RegisterClipboardListener(IntPtr hwnd)
         {
-            _ClipboardViewerNext = SetClipboardViewer(hWndNewViewer);
+            return AddClipboardFormatListener(hwnd) ? 0 : Marshal.GetLastWin32Error();
         }
-        public void UnregisterClipboardViewer(IntPtr hWndNewViewer)
+
+        public void UnregisterClipboardListener(IntPtr hwnd)
         {
-            ChangeClipboardChain(hWndNewViewer, _ClipboardViewerNext);
+            RemoveClipboardFormatListener(hwnd);
         }
+
         public string GetClipboardData()
         {
-
-            IDataObject iData = new DataObject();
-
             try
             {
-                iData = Clipboard.GetDataObject();
+                return Clipboard.ContainsText() ? Clipboard.GetText() : "";
             }
             catch (ExternalException externEx)
             {
+                // Pano başka bir uygulama tarafından kilitli olabilir.
                 Debug.WriteLine("InteropServices.ExternalException: {0}", externEx.Message);
                 return "";
             }
@@ -45,15 +49,6 @@ namespace ClipBoardHistory
                 MessageBox.Show(ex.ToString());
                 return "";
             }
-
-            if (iData.GetDataPresent(DataFormats.Text))
-            {
-                var a= (string)iData.GetData(DataFormats.Text);
-                return a;
-            }
-
-            return "";
-
         }
 
         public List<ClipBoardData> GetClipBoardDatas(int dateFilterIndex)
@@ -65,35 +60,27 @@ namespace ClipBoardHistory
              3 - Last Year
              4 - ALL
             */
-            DateTime dateTimeFilter = DateTime.MinValue;
-            if (dateFilterIndex == 0)
+            DateTime? dateTimeFilter = dateFilterIndex switch
             {
-                dateTimeFilter = DateTime.Now.AddHours(-24);
-            } 
-            else if (dateFilterIndex == 1)
-            {
-                dateTimeFilter = DateTime.Now.AddDays(-7);
-            }
-            else if (dateFilterIndex == 2)
-            {
-                dateTimeFilter = DateTime.Now.AddMonths(-1);
-            }
-            else if (dateFilterIndex == 3)
-            {
-                dateTimeFilter = DateTime.Now.AddYears(-1);
-            }
-            else 
-            {
-                dateTimeFilter = DateTime.MinValue;
-            }
-
+                0 => DateTime.Now.AddHours(-24),
+                1 => DateTime.Now.AddDays(-7),
+                2 => DateTime.Now.AddMonths(-1),
+                3 => DateTime.Now.AddYears(-1),
+                _ => null
+            };
 
             using var dbcontext = new SQLiteDbContext();
-            dbcontext.Database.EnsureCreated();
-            var result = dbcontext.ClipBoardDatas
-                .ToList().Where(a => DateTime.ParseExact(a.CreateDate, "yyyy-MM-dd HH:mm:ss", null) >= dateTimeFilter).OrderByDescending(x => x.CreateDate).ToList();
+            IQueryable<ClipBoardData> query = dbcontext.ClipBoardDatas!.AsNoTracking();
 
-            return result;
+            // Filtre ve sıralama SQL tarafında, CreateDate indeksi kullanılarak yapılır;
+            // sadece istenen tarih aralığındaki kayıtlar belleğe alınır.
+            if (dateTimeFilter.HasValue)
+            {
+                var filter = dateTimeFilter.Value;
+                query = query.Where(x => x.CreateDate >= filter);
+            }
+
+            return query.OrderByDescending(x => x.CreateDate).ToList();
         }
 
 
@@ -292,6 +279,7 @@ namespace ClipBoardHistory
             WM_PALETTEISCHANGING = 0x0310,
             WM_PALETTECHANGED = 0x0311,
             WM_HOTKEY = 0x0312,
+            WM_CLIPBOARDUPDATE = 0x031D,
             WM_PRINT = 0x0317,
             WM_PRINTCLIENT = 0x0318,
             WM_HANDHELDFIRST = 0x0358,
