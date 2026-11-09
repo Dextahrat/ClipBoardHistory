@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Globalization;
@@ -57,8 +57,14 @@ namespace ClipBoardHistory
             Directory.CreateDirectory(AppConstants.DataDirectory);
             CopyLegacyDatabaseIfNeeded();
 
+            Directory.CreateDirectory(AppConstants.ImageDirectory);
+
             using var dbcontext = new SQLiteDbContext();
             dbcontext.Database.EnsureCreated();
+
+            // EnsureCreated var olan tabloya yeni sütun eklemez; eski veritabanlarına eksik sütunlar elle eklenir.
+            // Sütunlar boş geçilebilir olduğu için mevcut kayıtlar değişmez.
+            AddMissingColumns(dbcontext, "Rtf", "Html", "ImagePath");
 
             // EnsureCreated var olan veritabanına yeni indeks eklemez; eski veritabanları için elle eklenir.
             dbcontext.Database.ExecuteSqlRaw(
@@ -66,17 +72,74 @@ namespace ClipBoardHistory
         }
 
         /// <summary>
-        /// Önceki sürümler veritabanını çalışma dizinine (genellikle exe'nin yanına) yazıyordu.
-        /// Yeni konumda veritabanı yoksa ve eski konumlardan birinde varsa oradan kopyalanır.
-        /// Eski dosya silinmez, yedek olarak yerinde kalır.
+        /// Verilen listede resim dosyası diskte bulunmayan kayıtları veritabanından siler ve listeden çıkarır.
+        /// Hata fırlatmaz; bir sorun olursa sadece loglar. Silinen kayıt olduysa true döner.
+        /// </summary>
+        public static bool RemoveRecordsWithMissingImages(List<ClipBoardData> records)
+        {
+            var missingIds = records
+                .Where(x => x.IsImage && !File.Exists(x.ImageFullPath!))
+                .Select(x => x.Id)
+                .ToList();
+
+            if (missingIds.Count == 0)
+                return false;
+
+            try
+            {
+                using var dbcontext = new SQLiteDbContext();
+                dbcontext.ClipBoardDatas!.Where(x => missingIds.Contains(x.Id)).ExecuteDelete();
+            }
+            catch (Exception ex)
+            {
+                ExceptionHandler.HandleException(ex);
+                return false;
+            }
+
+            records.RemoveAll(x => missingIds.Contains(x.Id));
+            return true;
+        }
+
+        private static void AddMissingColumns(SQLiteDbContext dbcontext, params string[] columnNames)
+        {
+            var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var connection = dbcontext.Database.GetDbConnection();
+            dbcontext.Database.OpenConnection();
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "PRAGMA table_info(\"ClipboardDatas\");";
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                    existingColumns.Add(reader.GetString(1)); // 1 = sütun adı
+            }
+            finally
+            {
+                dbcontext.Database.CloseConnection();
+            }
+
+            foreach (var columnName in columnNames)
+            {
+                if (!existingColumns.Contains(columnName))
+                    dbcontext.Database.ExecuteSqlRaw("ALTER TABLE \"ClipboardDatas\" ADD COLUMN \"" + columnName + "\" TEXT NULL;");
+            }
+        }
+
+        /// <summary>
+        /// Exe'nin yanında veritabanı yoksa eski konumlardan birinde aranır ve oradan kopyalanır:
+        /// - Çalışma dizini (ilk sürümler veritabanını göreli yolla buraya yazıyordu)
+        /// - %LOCALAPPDATA%\ClipBoardHistory (bir önceki geliştirme sürümü; resimleri de kopyalanır)
+        /// Eski dosyalar silinmez, yedek olarak yerinde kalır.
         /// </summary>
         private static void CopyLegacyDatabaseIfNeeded()
         {
             if (File.Exists(AppConstants.DatabasePath))
                 return;
 
-            var legacyPath = new[] { AppContext.BaseDirectory, Environment.CurrentDirectory }
+            var legacyPath = new[] { Environment.CurrentDirectory, AppConstants.LegacyLocalDataDirectory }
                 .Select(dir => Path.GetFullPath(Path.Combine(dir, AppConstants.DatabaseFileName)))
+                .Where(path => !string.Equals(path, AppConstants.DatabasePath, StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Where(path => File.Exists(path))
                 .OrderByDescending(path => File.GetLastWriteTimeUtc(path))
@@ -91,6 +154,19 @@ namespace ClipBoardHistory
                 var source = legacyPath + suffix;
                 if (File.Exists(source))
                     File.Copy(source, AppConstants.DatabasePath + suffix, overwrite: false);
+            }
+
+            // Veritabanı %LOCALAPPDATA%'dan geldiyse oradaki resimler de exe'nin yanına kopyalanır.
+            var legacyImageDirectory = Path.Combine(Path.GetDirectoryName(legacyPath)!, "Images");
+            if (Directory.Exists(legacyImageDirectory))
+            {
+                Directory.CreateDirectory(AppConstants.ImageDirectory);
+                foreach (var source in Directory.GetFiles(legacyImageDirectory, "*.png"))
+                {
+                    var target = Path.Combine(AppConstants.ImageDirectory, Path.GetFileName(source));
+                    if (!File.Exists(target))
+                        File.Copy(source, target);
+                }
             }
         }
     }

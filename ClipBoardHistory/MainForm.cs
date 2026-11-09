@@ -10,15 +10,31 @@ namespace ClipBoardHistory
         ClipBoardUtil _clipBoardUtil = new ClipBoardUtil();
         List<ClipBoardData> _clipBoardDatas = new List<ClipBoardData>();
         string? _lastText;
+        string? _lastImageFile;
         IntPtr _listenerHandle = IntPtr.Zero;
 
         public MainForm()
         {
             InitializeComponent();
+            dataGridView1.CellStateChanged += dataGridView1_CellStateChanged;
+        }
+
+        // İlk sütun (gün rengi şeridi) seçilemez: seçilirse hemen seçim kaldırılır.
+        // Böylece tablo odak aldığında WinForms'un ilk hücreyi otomatik seçmesi de görünmez olur
+        // ve şerit her zaman günün renginde görünür.
+        private void dataGridView1_CellStateChanged(object? sender, DataGridViewCellStateChangedEventArgs e)
+        {
+            if (e.StateChanged == DataGridViewElementStates.Selected && e.Cell.ColumnIndex == 0 && e.Cell.Selected)
+                e.Cell.Selected = false;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            // Tablo ilk kez doldurulmadan ÖNCE kapatılmalı. Aksi halde (örn. cmbDateFilter.SelectedIndex
+            // atanınca tetiklenen ilk doldurmada) sınıftaki ek özellikler için otomatik sütunlar eklenir
+            // ve tasarımdaki sütunların sırası kayar.
+            dataGridView1.AutoGenerateColumns = false;
+
             SQLiteDbContext.Initialize();
 
             // Açılış anında panoda olan metin kaydedilmez, sadece "son metin" olarak hatırlanır.
@@ -29,7 +45,6 @@ namespace ClipBoardHistory
             notifyIcon1.Icon = Properties.Resources.Untitled;
             cmbDateFilter.SelectedIndex = 1;
             this.ShowInTaskbar = false;
-            dataGridView1.AutoGenerateColumns = false;
             _clipBoardDatas = _clipBoardUtil.GetClipBoardDatas(cmbDateFilter.SelectedIndex);
             RefreshGrid();
 
@@ -93,25 +108,53 @@ namespace ClipBoardHistory
             if (chkDisableCapture.Checked)
                 return;
 
-            if (string.IsNullOrEmpty((txt ?? "").Trim()))
-                return;
-
-            if (txt == _lastText)
-                return;
-
+            // Uygulamanın kendi penceresi aktifken (örn. "Copy" menüsüyle panoya geri koyarken) kayıt yapılmaz.
             if (Form.ActiveForm != null)
                 return;
 
-            var now = DateTime.Now;
-            now = now.AddTicks(-(now.Ticks % TimeSpan.TicksPerSecond)); // veritabanı saniye hassasiyetinde saklar
+            // 1) Metin varsa: düz metin + varsa RTF/HTML biçimi kaydedilir.
+            //    (Excel gibi programlar metinle birlikte resim de koyar; bu durumda metin kaydedilir.)
+            if (!string.IsNullOrEmpty((txt ?? "").Trim()))
+            {
+                if (txt == _lastText)
+                    return;
 
+                SaveRecord(new ClipBoardData()
+                {
+                    CBText = txt,
+                    Rtf = _clipBoardUtil.GetRichText(TextDataFormat.Rtf),
+                    Html = _clipBoardUtil.GetRichText(TextDataFormat.Html),
+                    CreateDate = NowWithoutMilliseconds()
+                });
+                _lastText = txt;
+                _lastImageFile = null;
+                return;
+            }
+
+            // 2) Metin yoksa ve resim varsa: resim PNG olarak kaydedilir.
+            // 3) Dosya kopyalamaları (Gezgin'de dosya kopyalama) ne metin ne resim içerdiği için kaydedilmez.
+            var imageFile = _clipBoardUtil.SaveClipboardImage();
+            if (imageFile == null || imageFile == _lastImageFile)
+                return;
+
+            SaveRecord(new ClipBoardData() { ImagePath = imageFile, CreateDate = NowWithoutMilliseconds() });
+            _lastImageFile = imageFile;
+            _lastText = null;
+        }
+
+        private void SaveRecord(ClipBoardData data)
+        {
             using var dbcontext = new SQLiteDbContext();
-            ClipBoardData data = new ClipBoardData() { CBText = txt, CreateDate = now };
             dbcontext.ClipBoardDatas!.Add(data);
             dbcontext.SaveChanges();
             _clipBoardDatas.Add(data);
             RefreshGrid();
-            _lastText = txt;
+        }
+
+        private static DateTime NowWithoutMilliseconds()
+        {
+            var now = DateTime.Now;
+            return now.AddTicks(-(now.Ticks % TimeSpan.TicksPerSecond)); // veritabanı saniye hassasiyetinde saklar
         }
 
         private void RefreshGrid()
@@ -146,15 +189,36 @@ namespace ClipBoardHistory
 
             using var dbcontext = new SQLiteDbContext();
             var clipBoardData = dbcontext.ClipBoardDatas.FirstOrDefault(x => x.Id == id);
+            var imageFile = clipBoardData?.ImagePath;
             dbcontext.ClipBoardDatas.Remove(clipBoardData);
             dbcontext.SaveChanges();
             _clipBoardDatas.Remove(_clipBoardDatas.FirstOrDefault(x => x.Id == id));
+
+            // Aynı resmi kullanan başka kayıt kalmadıysa resim dosyası da silinir.
+            if (!string.IsNullOrEmpty(imageFile) && !dbcontext.ClipBoardDatas.Any(x => x.ImagePath == imageFile))
+            {
+                _clipBoardUtil.DeleteImageFile(imageFile);
+                if (_lastImageFile == imageFile)
+                    _lastImageFile = null;
+            }
 
             RefreshGrid();
 
 
         }
 
+
+        // Kaydı (resim veya biçimli metin dahil) panoya geri koyar.
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var mItem = (ToolStripMenuItem)sender;
+            var info = (DataGridView.HitTestInfo)(mItem.Tag);
+
+            var id = Convert.ToInt32(dataGridView1.Rows[info.RowIndex].Cells[0].Value);
+            var record = _clipBoardUtil.GetClipBoardData(id);
+            if (record != null)
+                _clipBoardUtil.SetClipboard(record);
+        }
 
         private void dataGridView1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -165,6 +229,9 @@ namespace ClipBoardHistory
                 var showPoint = new Point(e.X + this.Left + dataGridView1.Left, e.Y + this.Top + dataGridView1.Top);
                 if (info.RowIndex < 0) return;
                 ContextMenuStrip m = new ContextMenuStrip();
+                var copyItem = new ToolStripMenuItem("Copy", null, copyToolStripMenuItem_Click);
+                copyItem.Tag = info;
+                m.Items.Add(copyItem);
                 var mItem = new ToolStripMenuItem("Delete", null, deleteToolStripMenuItem_Click);
                 mItem.Tag = info;
                 m.Items.Add(mItem);
@@ -181,8 +248,14 @@ namespace ClipBoardHistory
             if (e.RowIndex < 0) return;
             if (e.ColumnIndex == 2)
             {//Text formunu aç.
-                var frm = new frmTextDetail();
-                frm.txt = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
+                // Listede Rtf/Html yüklü değil; tam kayıt veritabanından çekilir.
+                var row = (ClipBoardData)dataGridView1.Rows[e.RowIndex].DataBoundItem;
+                var record = _clipBoardUtil.GetClipBoardData(row.Id) ?? row;
+
+                using var frm = new frmTextDetail();
+                frm.txt = record.CBText ?? "";
+                frm.rtf = record.Rtf;
+                frm.imagePath = record.ImageFullPath;
                 frm.ShowDialog();
             }
             else if (e.ColumnIndex == 3)
@@ -240,7 +313,9 @@ namespace ClipBoardHistory
         private void dataGridView1_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
             if (e.RowIndex < 0) return;
-            dataGridView1.Rows[e.RowIndex].Cells[0].Style.BackColor = (Color)(dataGridView1.Rows[e.RowIndex].Cells[6].Value);
+            // Renk sütun numarasıyla değil, satırın bağlı olduğu kayıttan okunur; sütun sırası değişse de etkilenmez.
+            if (dataGridView1.Rows[e.RowIndex].DataBoundItem is ClipBoardData item)
+                dataGridView1.Rows[e.RowIndex].Cells[0].Style.BackColor = item.DayColor;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

@@ -16,6 +16,9 @@ namespace ClipBoardHistory
         {
             get
             {
+                if (IsImage)
+                    return "[Image]" + Environment.NewLine + Environment.NewLine + " -- For More Double Click -- ";
+
                 string temp = CBText;
                 if (!string.IsNullOrEmpty(temp))
                 {
@@ -40,6 +43,19 @@ namespace ClipBoardHistory
         public string? Note { get; set; }
 
         public string? CBText { get; set; }
+
+        /// <summary>Kopyalanan metnin RTF biçimi (varsa). Liste yüklenirken okunmaz, gerektiğinde ayrıca çekilir.</summary>
+        public string? Rtf { get; set; }
+
+        /// <summary>Kopyalanan metnin HTML biçimi (varsa, CF_HTML formatında). Liste yüklenirken okunmaz.</summary>
+        public string? Html { get; set; }
+
+        /// <summary>Resim kayıtlarında AppConstants.ImageDirectory içindeki PNG dosyasının adı; metin kayıtlarında null.</summary>
+        public string? ImagePath { get; set; }
+
+        public bool IsImage => !string.IsNullOrEmpty(ImagePath);
+
+        public string? ImageFullPath => IsImage ? Path.Combine(AppConstants.ImageDirectory, ImagePath!) : null;
 
         /// <summary>
         /// Veritabanında "yyyy-MM-dd HH:mm:ss" biçiminde metin olarak saklanır

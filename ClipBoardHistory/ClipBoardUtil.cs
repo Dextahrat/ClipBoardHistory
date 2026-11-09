@@ -1,7 +1,9 @@
-﻿
+
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 
 namespace ClipBoardHistory
@@ -80,7 +82,165 @@ namespace ClipBoardHistory
                 query = query.Where(x => x.CreateDate >= filter);
             }
 
-            return query.OrderByDescending(x => x.CreateDate).ToList();
+            // Rtf/Html sütunları büyük olabileceği için liste yüklenirken okunmaz;
+            // gerektiğinde GetClipBoardData(id) ile tek kayıt olarak çekilir.
+            var result = query
+                .OrderByDescending(x => x.CreateDate)
+                .Select(x => new ClipBoardData
+                {
+                    Id = x.Id,
+                    CBText = x.CBText,
+                    Note = x.Note,
+                    CreateDate = x.CreateDate,
+                    ImagePath = x.ImagePath
+                })
+                .ToList();
+
+            // Resim dosyası bulunamayan (silinmiş) kayıtlar veritabanından da sessizce silinir.
+            // Sadece listelenen kayıtlar kontrol edilir; filtre dışındaki kayıtlar listelendiklerinde temizlenir.
+            SQLiteDbContext.RemoveRecordsWithMissingImages(result);
+
+            return result;
+        }
+
+        /// <summary>Tek bir kaydı tüm alanlarıyla (Rtf/Html dahil) getirir.</summary>
+        public ClipBoardData? GetClipBoardData(int id)
+        {
+            using var dbcontext = new SQLiteDbContext();
+            return dbcontext.ClipBoardDatas!.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        }
+
+        /// <summary>
+        /// Panodaki metnin RTF veya HTML biçimini döndürür. Yoksa ya da çok büyükse null döner.
+        /// </summary>
+        public string? GetRichText(TextDataFormat format)
+        {
+            try
+            {
+                if (!Clipboard.ContainsText(format))
+                    return null;
+
+                var value = Clipboard.GetText(format);
+                if (string.IsNullOrEmpty(value) || value.Length > AppConstants.MaxRichTextLength)
+                    return null;
+
+                return value;
+            }
+            catch (ExternalException externEx)
+            {
+                Debug.WriteLine("InteropServices.ExternalException: {0}", externEx.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Panoda resim varsa PNG olarak AppConstants.ImageDirectory altına kaydeder ve dosya adını döndürür.
+        /// Dosya adı içeriğin SHA-256 özeti olduğu için aynı resim ikinci kez diske yazılmaz.
+        /// Panoda resim yoksa null döner.
+        /// </summary>
+        public string? SaveClipboardImage()
+        {
+            byte[] pngBytes;
+            try
+            {
+                if (!Clipboard.ContainsImage())
+                    return null;
+
+                using var image = Clipboard.GetImage();
+                if (image == null)
+                    return null;
+
+                using var ms = new MemoryStream();
+                image.Save(ms, ImageFormat.Png);
+                pngBytes = ms.ToArray();
+            }
+            catch (ExternalException externEx)
+            {
+                Debug.WriteLine("InteropServices.ExternalException: {0}", externEx.Message);
+                return null;
+            }
+
+            var fileName = Convert.ToHexString(SHA256.HashData(pngBytes)).ToLowerInvariant() + ".png";
+            var fullPath = Path.Combine(AppConstants.ImageDirectory, fileName);
+            if (!File.Exists(fullPath))
+            {
+                Directory.CreateDirectory(AppConstants.ImageDirectory);
+                File.WriteAllBytes(fullPath, pngBytes);
+            }
+
+            return fileName;
+        }
+
+        /// <summary>
+        /// Resmi dosyayı kilitlemeden yükler (Image.FromFile dosyayı açık tutar).
+        /// </summary>
+        public static Image LoadImage(string fullPath)
+        {
+            using var ms = new MemoryStream(File.ReadAllBytes(fullPath));
+            using var image = Image.FromStream(ms);
+            return new Bitmap(image);
+        }
+
+        public void DeleteImageFile(string fileName)
+        {
+            try
+            {
+                var fullPath = Path.Combine(AppConstants.ImageDirectory, fileName);
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+            }
+            catch (Exception ex)
+            {
+                // Dosya silinemezse (örn. başka bir program açmışsa) kayıt yine de silinmiş olur.
+                ExceptionHandler.HandleException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Kaydı panoya geri koyar: resim kayıtlarında resmi, metin kayıtlarında düz metni
+        /// ve varsa RTF/HTML biçimlerini birlikte koyar; böylece yapıştırılan yerde biçim korunur.
+        /// </summary>
+        public void SetClipboard(ClipBoardData record)
+        {
+            var dataObject = new DataObject();
+
+            if (record.IsImage)
+            {
+                // Dosya bulunamazsa ya da okunamazsa hata gösterilmez, hiçbir şey yapılmaz.
+                // Kayıt bir sonraki liste yüklemesinde veritabanından silinir.
+                var fullPath = record.ImageFullPath!;
+                if (!File.Exists(fullPath))
+                    return;
+
+                Image image;
+                try
+                {
+                    image = LoadImage(fullPath);
+                }
+                catch (Exception ex)
+                {
+                    ExceptionHandler.HandleException(ex);
+                    return;
+                }
+
+                using (image)
+                {
+                    dataObject.SetImage(image);
+                    Clipboard.SetDataObject(dataObject, true, 5, 100);
+                }
+                return;
+            }
+
+            if (string.IsNullOrEmpty(record.CBText))
+                return;
+
+            dataObject.SetText(record.CBText, TextDataFormat.UnicodeText);
+            if (!string.IsNullOrEmpty(record.Rtf))
+                dataObject.SetText(record.Rtf, TextDataFormat.Rtf);
+            if (!string.IsNullOrEmpty(record.Html))
+                dataObject.SetText(record.Html, TextDataFormat.Html);
+
+            Clipboard.SetDataObject(dataObject, true, 5, 100);
         }
 
 
